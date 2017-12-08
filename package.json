@@ -1,0 +1,32 @@
+{
+  "name": "killbase-lancehunter",
+  "version": "1.0.0",
+  "description": "Galvanize assignment for creating CRUD web app with Express and Knex.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LanceHunter/killbase-app.git"
+  },
+  "keywords": [
+    "assignment",
+    "not",
+    "really",
+    "about",
+    "killers"
+  ],
+  "author": "R. Lance Hunter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LanceHunter/killbase-app/issues"
+  },
+  "homepage": "https://github.com/LanceHunter/killbase-app#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "knex": "^0.14.2",
+    "morgan": "^1.9.0",
+    "ps": "0.0.2"
+  }
+}
