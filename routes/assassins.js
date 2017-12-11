@@ -64,6 +64,19 @@ router.get('/codenames/:id', (req, res) => {
   });
 });
 
+router.post('/', (req, res) => {
+  let assassinObj = req.body;
+  console.log(assassinObj);
+  knex('assassins').insert(assassinObj)
+  .then((result) => {
+    res.send(result);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.sentStatus(500);
+  });
+});
+
 router.delete('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   if (!isNaN(id)) {
