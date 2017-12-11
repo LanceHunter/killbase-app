@@ -22,8 +22,9 @@ exports.seed = function(knex, Promise) {
             for (i=1; i<rowsArray.length; i++) {
               let targetObj = {};
               let targetValues = rowsArray[i].split(',');
-              targetValues[2] = targetValues[2].trim();
-              targetValues[2] = targetValues[2].slice(1,(targetValues[2].length-2));
+              targetValues[0] = targetValues[0].trim().slice(1,(targetValues[0].length-1));
+              targetValues[1] = targetValues[1].trim().slice(1,(targetValues[1].length-1));
+              targetValues[2] = targetValues[2].trim().slice(1,(targetValues[2].length-1));
               targetObj = {
                 "name" : targetValues[0],
                 "location" : targetValues[1],

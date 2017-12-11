@@ -7,6 +7,6 @@ exports.up = function(knex, Promise) {
 
 exports.down = function(knex, Promise) {
   return knex.schema.table('contracts', (table) => {
-    table.integer('assassin_id').references('assassins.id').notNullable();
+    table.integer('assassin_id').references('assassins.id');
   })
 };

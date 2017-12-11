@@ -23,6 +23,8 @@ exports.seed = (knex, Promise) => {
             for (i=1; i<rowsArray.length; i++) {
               let assassinObject = {};
               let assassinValues = rowsArray[i].split(', ');
+              assassinValues[0] = assassinValues[0].trim().slice(1,assassinValues[0].length-1);
+              assassinValues[3] = assassinValues[3].trim().slice(1,assassinValues[3].length-1);
               let checkString = assassinValues[0];
               if (!checkArr.includes(checkString)) {
                 assassinObject = {
