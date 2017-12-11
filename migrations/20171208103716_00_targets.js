@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
     table.increments();
     table.string('name').notNullable();
     table.string('location').notNullable();
-    table.integer('photo_url');
+    table.string('photo_url');
     table.integer('security_level');
     table.boolean('alive').notNullable().defaultTo(true);
   });

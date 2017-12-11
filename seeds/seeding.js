@@ -22,10 +22,8 @@ exports.seed = (knex, Promise) => {
             let checkArr = [];
             for (i=1; i<rowsArray.length; i++) {
               let assassinObject = {};
-              let assassinValues = rowsArray[i].split(',');
+              let assassinValues = rowsArray[i].split(', ');
               let checkString = assassinValues[0];
-              console.log('The check string - '+ checkString);
-              console.log('The check array - '+ checkArr);
               if (!checkArr.includes(checkString)) {
                 assassinObject = {
                   "name" : assassinValues[0],
@@ -52,10 +50,11 @@ exports.seed = (knex, Promise) => {
       for (i=1; i<csv.length; i++) {
         assassinValues = csv[i].split(',');
         let codeNameInputString = `INSERT INTO code_names (name, assassin_id) VALUES ('${assassinValues[1]}', (SELECT id FROM assassins WHERE name='${assassinValues[0]}'));`;
-        codeNamesArr.push(codeNameInputString);
+        if (assassinValues[1] !== ' ""') {
+          codeNamesArr.push(codeNameInputString);
+        }
       }
       let codeNameInputString = codeNamesArr.join('\n');
-      console.log(codeNameInputString);
       return knex.raw(codeNameInputString);
     })
     .then(() => {
@@ -66,7 +65,7 @@ exports.seed = (knex, Promise) => {
         weaponsArr.push(weaponInput);
       }
       let weaponInputString = weaponsArr.join('\n');
-      console.log(weaponInputString);
       return knex.raw(weaponInputString);
     })
+
 };

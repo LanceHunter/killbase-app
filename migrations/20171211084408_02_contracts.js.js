@@ -1,12 +1,12 @@
 
 exports.up = function(knex, Promise) {
   return knex.schema.table('contracts', (table) => {
-    table.dropColumn('assassin_id');
+    table.integer('client_id').references('clients.id').notNullable();
   })
 };
 
 exports.down = function(knex, Promise) {
   return knex.schema.table('contracts', (table) => {
-    table.integer('assassin_id').references('assassins.id').notNullable();
-  })
+    table.dropColumn('client_id');
+  });
 };
