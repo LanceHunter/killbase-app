@@ -23,8 +23,8 @@ exports.seed = function(knex, Promise) {
               let targetObj = {};
               let targetValues = rowsArray[i].split(',');
               targetValues[0] = targetValues[0].trim().slice(1,(targetValues[0].length-1));
-              targetValues[1] = targetValues[1].trim().slice(1,(targetValues[1].length-1));
-              targetValues[2] = targetValues[2].trim().slice(1,(targetValues[2].length-1));
+              targetValues[1] = targetValues[1].trim().slice(1,(targetValues[1].length-2));
+              targetValues[2] = targetValues[2].trim().slice(1,(targetValues[2].length-2));
               targetObj = {
                 "name" : targetValues[0],
                 "location" : targetValues[1],
@@ -45,8 +45,7 @@ exports.seed = function(knex, Promise) {
       for (i=1; i<csv.length; i++) {
         let clientObj = {};
         let clientValues = csv[i].split(',');
-        clientValues[4] = clientValues[4].trim();
-        clientValues[4] = clientValues[4].slice(1,(clientValues[4].length-1));
+        clientValues[4] = clientValues[4].trim().slice(1,(clientValues[4].length-1));
         clientObj = {
           "name" : clientValues[4]
         }
@@ -60,25 +59,24 @@ exports.seed = function(knex, Promise) {
       let clientID;
       for (i=1; i<csv.length; i++) {
         let contractValues = csv[i].split(',');
-        contractValues[4] = contractValues[4].trim();
-        contractValues[4] = contractValues[4].slice(1,(contractValues[4].length-1));
-        knex('targets').returning('id').where('name',contractValues[0])
-        .then((target_id) => {
-          knex('clients').returning('id').where('name', contractValues[4])
-          .then((client_id) => {
-            console.log('Client id - ' + client_id[0].id);
-            console.log('Target ID - ' + target_id[0].id);
-            console.log('contractValues[5] - ' + contractValues[5]);
-            keyObj = {
-              'client_id':client_id[0].id,
-              'target_id':target_id[0].id,
-              'budget':contractValues[5]
-              };
-            let contractArr = [];
-            contractArr.push(keyObj);
-            return knex('contracts').insert(contractArr);
+        contractValues[0] = contractValues[0].trim().slice(1,(contractValues[0].length-1));        contractValues[4] = contractValues[4].trim().slice(1,(contractValues[4].length-1));
+          knex('targets').returning('id').where('name',contractValues[0])
+          .then((target_id) => {
+            knex('clients').returning('id').where('name', contractValues[4])
+            .then((client_id) => {
+              console.log('Client id - ' + client_id[0].id);
+              console.log('Target ID - ' + target_id[0].id);
+              console.log('contractValues[5] - ' + contractValues[5]);
+              keyObj = {
+                'client_id':client_id[0].id,
+                'target_id':target_id[0].id,
+                'budget':contractValues[5]
+                };
+              let contractArr = [];
+              contractArr.push(keyObj);
+              return knex('contracts').insert(contractArr);
+            })
           })
-        })
       }
 
     });

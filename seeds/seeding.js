@@ -51,6 +51,7 @@ exports.seed = (knex, Promise) => {
       let codeNamesArr=[];
       for (i=1; i<csv.length; i++) {
         assassinValues = csv[i].split(',');
+        assassinValues[0] = assassinValues[0].trim().slice(1,assassinValues[0].length-1);
         let codeNameInputString = `INSERT INTO code_names (name, assassin_id) VALUES ('${assassinValues[1]}', (SELECT id FROM assassins WHERE name='${assassinValues[0]}'));`;
         if (assassinValues[1] !== ' ""') {
           codeNamesArr.push(codeNameInputString);
@@ -63,6 +64,8 @@ exports.seed = (knex, Promise) => {
       let weaponsArr=[];
       for (i=1; i<csv.length; i++) {
         assassinValues = csv[i].split(',');
+        assassinValues[0] = assassinValues[0].trim().slice(1,assassinValues[0].length-1);
+        assassinValues[2] = assassinValues[2].trim().slice(1,assassinValues[2].length-2);
         let weaponInput = `INSERT INTO weapons (name, assassin_id) VALUES ('${assassinValues[2]}', (SELECT id FROM assassins WHERE name='${assassinValues[0]}'));`;
         weaponsArr.push(weaponInput);
       }
