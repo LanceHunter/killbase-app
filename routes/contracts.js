@@ -153,8 +153,72 @@ router.post('/assign', (req, res) => {
   }
 });
 
+// For POST requests to /contracts - This will take the body of the request and first check to see if the client is in our client list. Then it creates a target, then if the client is not already in our list then it creates a new client. If the client is already in our list then it gets the id for that client. Finally, it create contract for that target and client and sends the JSON for the join table of contract+target.
 router.post('/', (req, res) => {
-  let contractObj = req.body;
+  let bodyObj = req.body;
+  let targetID;
+  let clientID;
+  let clientArr = [];
+  let targetObj = {
+    'name' : bodyObj.target_name,
+    'location' : bodyObj.location,
+    'photo_url' : bodyObj.photo_url,
+    'security_level' : bodyObj.security_level
+  };
+  let clientObj = {
+    'name' : bodyObj.client_name
+  }
+  knex.select('name').table('clients')
+  .then((results) => {
+    console.log(results);
+    for (let i=0; i<results.length; i++) {
+      clientArr.push(results[i].name);
+    }
+    return knex('targets').insert(targetObj).returning('id')
+  })
+  .then((target_id) => {
+    targetID = target_id[0];
+    if (clientArr.includes(bodyObj.client_name)) {
+      console.log('Name not found.')
+      return knex.select('id').from('clients').where('name', bodyObj.client_name);
+    } else {
+      console.log('Name found')
+      return knex('clients').insert({name:bodyObj.client_name}).returning('id');
+    }
+  })
+  .then((client_id) => {
+    let clientID = client_id[0].id || client_id[0];
+    console.log("Target id = " + targetID);
+    console.log("Client id = " + clientID);
+    let contractObj = {
+      'target_id' : targetID,
+      'client_id' : clientID,
+      'budget' : bodyObj.budget
+    };
+    console.log(contractObj);
+    return knex('contracts').insert(contractObj).returning('id');
+  })
+  .then((contract_id) => {
+    return           knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id', contract_id[0]);
+  })
+  .then((response) => {
+    res.send(response);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.sendStatus(500);
+  });
+});
+
+router.patch('/target/:id', (req, res) => {
+  let id = filterInt(req.params.id);
+  let bodyObj = req.body;
+  let idRange = [];
+  if (!isNaN(id)) {
+
+  } else {
+    res.send(404);
+  }
 });
 
 // For PATCH requests to /contracts - This will need to include an id in the path and the information to be updated in the body of the request. If the ID doesn't match any current contract ids, a 404 is sent. This currently expects that any attempts to update the contract to completed will also include the id of the assassin that completed it. It will also change the target "alive" value to false if a contract is completed. The only other updates allowed currently are to the budget.
