@@ -132,8 +132,62 @@ router.get('/clients/:id', (req, res) => {
   }
 });
 
+// For a POST request to /contracts/assign - This requires that there be an assassin_id and a contact_id in the body. It assigns a contract to an assassin.
+router.post('/assign', (req, res) => {
+  let assignmentObj = req.body;
+  if (assignmentObj.assassin_id && assignmentObj.contract_id) {
+    knex('assassins_contracts').insert({
+      "assassin_id" : assignmentObj.assassin_id,
+      "contract_id" : assignmentObj.contract_id
+    })
+    .then(() => {
+      //Sending 200 if it works. Will need to update this to be more relevant later.
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else {
+    res.sendStatus(400);
+  }
+});
 
-// For a DELETE request to /contracts that then includes an id. It will delete the id for
+
+// For a DELETE request to /contracts/assign - This requires that there be an assassin_id in the body. If there is also a contract_id it then deletes that row from the assassins_contracts table. If there is only an assassin_id, it deletes all contracts assigned to that assassin.
+router.delete('/assign', (req, res) => {
+  let assignmentObj = req.body;
+  if (assignmentObj.assassin_id && assignmentObj.contract_id) {
+    knex('assassins_contracts').where({
+      "assassin_id" : assignmentObj.assassin_id,
+      "contract_id" : assignmentObj.contract_id
+    }).del()
+    .then(() => {
+      //This sends a 200 status if it works. Will need to update with more detail later.
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else if (assignmentObj.assassin_id) {
+    knex('assassins_contracts').where({
+      "assassin_id" : assignmentObj.assassin_id
+    }).del()
+    .then(() => {
+      //This sends a 200 status if it works. Will need to update with more detail later.
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else {
+    res.sendStatus(400);
+  }
+});
+
+// For a DELETE request to /contracts that then includes an id. It will delete the id for the contract whose id matches the one provided. If the id is not found or is not a number, a 404 is sent. If there is an error, a 500 is sent. If it works properly, a 200 is sent.
 router.delete('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let idRange = [];
