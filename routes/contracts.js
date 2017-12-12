@@ -210,14 +210,72 @@ router.post('/', (req, res) => {
   });
 });
 
-router.patch('/target/:id', (req, res) => {
+
+// For PATCH requests to /contracts/targets - This will need to include an id in the path and the information to be updated in the body of the request.
+router.patch('/targets/:id', (req, res) => {
   let id = filterInt(req.params.id);
-  let bodyObj = req.body;
+  let targetObj = req.body;
   let idRange = [];
   if (!isNaN(id)) {
-
+    knex.select('id').from('targets')
+      .then((idArr) => {
+        for (let i = 0; i < idArr.length; i++) {
+          idRange.push(idArr[i].id);
+        }
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (targetObj.name) {
+            console.log('Name change');
+            knex('targets').where('id',id).update({
+              "name" : targetObj.name
+            })
+            .catch((err) => {
+              console.error('Name error - ' + err);
+              res.send(500);
+            })
+          }
+          if (targetObj.location) {
+            console.log('Location change');
+            knex('targets').where('id',id).update({
+              "location" : targetObj.location
+            })
+            .catch((err) => {
+              console.error('Location error - ' + err);
+              res.send(500);
+            })
+          }
+          if (targetObj.photo_url) {
+            console.log('Photo URL change');
+            knex('targets').where('id',id).update({
+              "photo_url" : targetObj.photo_url
+            })
+            .catch((err) => {
+              console.error('Photo URL error - ' + err);
+              res.send(500);
+            })
+          }
+          if (targetObj.security_level) {
+            console.log('Security level change');
+            knex('targets').where('id',id).update({
+              "security_level" : targetObj.security_level
+            })
+            .catch((err) => {
+              console.error('security level error - ' + err);
+              res.send(500);
+            })
+          }
+          res.sendStatus(200);
+        } else {
+          res.sendStatus(404);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
   } else {
-    res.send(404);
+    res.sendStatus(404);
   }
 });
 
