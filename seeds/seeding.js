@@ -69,7 +69,7 @@ exports.seed = (knex, Promise) => {
         assassinValues[0] = assassinValues[0].trim().slice(1,assassinValues[0].length-1);
         assassinValues[2] = assassinValues[2].trim().slice(1,assassinValues[2].length-2);
         if (!checkArr.includes(assassinValues[0])) {
-          let weaponInput = `INSERT INTO weapons (name, assassin_id) VALUES ('${assassinValues[2]}', (SELECT id FROM assassins WHERE name='${assassinValues[0]}'));`;
+          let weaponInput = `INSERT INTO weapons (weapon_name, assassin_id) VALUES ('${assassinValues[2]}', (SELECT id FROM assassins WHERE name='${assassinValues[0]}'));`;
           weaponsArr.push(weaponInput);
           checkArr.push(assassinValues[0]);
         }

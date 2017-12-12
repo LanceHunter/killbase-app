@@ -8,6 +8,8 @@ const port = process.env.PORT || 8888;
 const assassinsRoute = require('./routes/assassins.js');
 const contractsRoute = require('./routes/contracts.js');
 
+app.disable('x-powered-by');
+
 app.use(bodyParser.json());
 
 app.use('/assassins', assassinsRoute);

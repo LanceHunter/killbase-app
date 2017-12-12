@@ -15,9 +15,11 @@ const filterInt = function(value) {
 
 
 router.get('/', (req, res) => {
-  knex.select().from('assassins')
+  let resultArr = [];
+  knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
   .then((result) => {
-      res.send(result);
+      resultArr = result;
+      res.send(resultArr);
     })
     .catch((err) => {
       console.error(err);
@@ -28,7 +30,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   if (!isNaN(id)) {
-    knex.select('*').from('assassins').where('id', id)
+    knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.id', id)
     .then((result) => {
         res.send(result);
       })
@@ -67,13 +69,26 @@ router.get('/codenames/:id', (req, res) => {
 router.post('/', (req, res) => {
   let assassinObj = req.body;
   console.log(assassinObj);
-  knex('assassins').insert(assassinObj)
+  knex('assassins').insert({
+    'name' : assassinObj.name,
+    'contact_info' : assassinObj.contact_info,
+    'age' : assassinObj.age,
+    'price' : assassinObj.price,
+    'kills' : assassinObj.kills,
+    'rating' : assassinObj.rating
+  })
   .then((result) => {
-    res.send(result);
+    if (assassinObj.weapon) {
+      knex.select('id').from('assassins').where('name',assassinObj.name)
+      .then((returning) => {
+        return knex('weapons').insert({'weapon_name':assassinObj.weapon, "assassin_id":returning[0].id});
+      });
+    }
+    res.send(assassinObj);
   })
   .catch((err) => {
     console.error(err);
-    res.sentStatus(500);
+    res.sendStatus(500);
   });
 });
 
@@ -94,10 +109,9 @@ router.delete('/:id', (req, res) => {
           res.sendStatus(500);
         });
     })
+  } else {
+    res.sendStatus(404);
   }
 });
-
-
-
 
 module.exports = router;
