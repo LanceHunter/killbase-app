@@ -153,6 +153,62 @@ router.post('/assign', (req, res) => {
   }
 });
 
+router.post('/', (req, res) => {
+  let contractObj = req.body;
+});
+
+// For PATCH requests to /contracts - This will need to include an id in the path and the information to be updated in the body of the request. If the ID doesn't match any current contract ids, a 404 is sent. This currently expects that any attempts to update the contract to completed will also include the id of the assassin that completed it. It will also change the target "alive" value to false if a contract is completed. The only other updates allowed currently are to the budget.
+router.patch('/:id', (req, res) => {
+  let id = filterInt(req.params.id);
+  let contractObj = req.body;
+  let idRange = [];
+  if (!isNaN(id)) {
+    knex.select('id').from('contracts')
+      .then((idArr) => {
+        for (let i = 0; i < idArr.length; i++) {
+          idRange.push(idArr[i].id);
+        }
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (contractObj.completed) {
+            console.log('Contract completed');
+            knex('contracts').where('id',id).update({
+              "completed" : contractObj.completed,
+              "completed_by" : contractObj.completed_by
+            }).returning('target_id')
+            .then((target_id) => {
+              console.log(target_id);
+              return knex('targets').where('id',target_id[0]).update({
+                "alive" : !contractObj.completed
+              })
+            })
+            .then(() => {
+              res.sendStatus(200);
+            })
+          }
+          if (contractObj.budget) {
+            console.log('Budget updated');
+            knex('contracts').where('id',id).update({
+              "budget" : contractObj.budget
+            })
+            .then(() => {
+              res.sendStatus(200);
+            })
+          }
+        } else {
+          res.sendStatus(404);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
+  } else {
+    res.sendStatus(404);
+  }
+});
+
 
 // For a DELETE request to /contracts/assign - This requires that there be an assassin_id in the body. If there is also a contract_id it then deletes that row from the assassins_contracts table. If there is only an assassin_id, it deletes all contracts assigned to that assassin.
 router.delete('/assign', (req, res) => {
