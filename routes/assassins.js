@@ -99,6 +99,40 @@ router.get('/names/:id', (req, res) => {
   });
 });
 
+// For GET requets to /assassins/codenames/all - This requires an id number be passed in that matches the id of an existing assassin, otherwise a 404 is returned. If a valid id is passed in, then an array of all code names for the assassin is returned.
+router.get('/codenames/all/:id', (req, res) => {
+  let id = filterInt(req.params.id);
+  let idArr = [];
+  let nameArr = [];
+  if (!isNaN(id)) {
+    knex.select('id').from('assassins')
+    .then((resultArr) => {
+      for (let i=0; i<resultArr.length; i++) {
+        idArr.push(resultArr[i].id);
+      }
+    })
+    .then(() => {
+      if (idArr.includes(id)) {
+        return knex.select('code_name').from('code_names').where('assassin_id', id);
+      } else {
+        console.log('Not in the array');
+        res.sendStatus(404);
+      }
+    })
+    .then((codeNameArr) => {
+      for (let i=0; i<codeNameArr.length; i++) {
+        nameArr.push(codeNameArr[i].code_name);
+      }
+      res.send(nameArr);
+    })
+
+  } else {
+    console.log('Not a number for ID');
+    res.sendStatus(404);
+  }
+});
+
+
 // For a GET request to /assassins/codenames/ that is followed by a string. The string will be searched and if it matches an assassin's code name it will return JSON with that assassins information. Otherwise, a 404 is sent.
 router.get('/codenames/:id', (req, res) => {
   let codeName = req.params.id;
@@ -127,6 +161,8 @@ router.get('/codenames/:id', (req, res) => {
   });
 });
 
+
+
 // For a POST request to /assassins/ - This will post a new assassin with the information provided in the body of the request.
 router.post('/', (req, res) => {
   let assassinObj = req.body;
@@ -154,6 +190,31 @@ router.post('/', (req, res) => {
   });
 });
 
+// For a POST request to /assassins/codenames - This will post a new code name for an assassin with the information provided in the body of the request. This will require two fields in the body: code_name and assassin_id (which must match the id of an existing assassin).
+router.post('/codenames', (req, res) => {
+  let codenameObj = req.body;
+  console.log(codenameObj);
+  if (codenameObj.code_name && codenameObj.assassin_id) {
+    knex('code_names').insert({
+      'code_name' : codenameObj.code_name,
+      'assassin_id' : codenameObj.assassin_id
+    })
+    .then(() => {
+      return knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').where('code_names.code_name', codenameObj.code_name);
+    })
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else {
+    res.send(400);
+  }
+});
+
+
 // For PATCH requests to /assassins/ followed by a numberic id and a json body. - This will require an id number matching the id of an existing assassin. If the id is not a number or does not match an existing assassin, a 404 is returned. Otherwise, the information in the body is changed for the assassin whose id was entered.
 router.patch('/:id', (req, res) => {
   let id = filterInt(req.params.id);
@@ -176,6 +237,7 @@ router.patch('/:id', (req, res) => {
           }).returning('name')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
         if (assassinObj.contact_info) {
@@ -185,6 +247,7 @@ router.patch('/:id', (req, res) => {
           }).returning('contact_info')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
         if (assassinObj.age) {
@@ -194,6 +257,7 @@ router.patch('/:id', (req, res) => {
           }).returning('age')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
         if (assassinObj.price) {
@@ -203,6 +267,7 @@ router.patch('/:id', (req, res) => {
           }).returning('price')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
         if (assassinObj.kills) {
@@ -212,6 +277,7 @@ router.patch('/:id', (req, res) => {
           }).returning('kills')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
         if (assassinObj.rating) {
@@ -221,6 +287,7 @@ router.patch('/:id', (req, res) => {
           }).returning('rating')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
         if (assassinObj.weapon) {
@@ -230,6 +297,7 @@ router.patch('/:id', (req, res) => {
           }).returning('weapon')
           .catch((err) => {
             console.error(err);
+            res.sendStatus(500);
           });
         }
       } else {

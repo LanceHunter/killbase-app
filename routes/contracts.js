@@ -232,7 +232,7 @@ router.patch('/targets/:id', (req, res) => {
             })
             .catch((err) => {
               console.error('Name error - ' + err);
-              res.send(500);
+              res.sendStatus(500);
             })
           }
           if (targetObj.location) {
@@ -242,7 +242,7 @@ router.patch('/targets/:id', (req, res) => {
             })
             .catch((err) => {
               console.error('Location error - ' + err);
-              res.send(500);
+              res.sendStatus(500);
             })
           }
           if (targetObj.photo_url) {
@@ -252,7 +252,7 @@ router.patch('/targets/:id', (req, res) => {
             })
             .catch((err) => {
               console.error('Photo URL error - ' + err);
-              res.send(500);
+              res.sendStatus(500);
             })
           }
           if (targetObj.security_level) {
@@ -262,10 +262,10 @@ router.patch('/targets/:id', (req, res) => {
             })
             .catch((err) => {
               console.error('security level error - ' + err);
-              res.send(500);
+              res.sendStatus(500);
             })
           }
-          res.sendStatus(200);
+          res.send(targetObj);
         } else {
           res.sendStatus(404);
         }
