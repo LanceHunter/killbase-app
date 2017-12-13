@@ -1,8 +1,9 @@
 'use strict';
 
-// Setting up express and body parser.
+// Setting up express, path, and body parser.
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 8888;
 
@@ -19,10 +20,17 @@ app.use(bodyParser.json());
 // Getting the assassins & contracts routs running.
 app.use('/assassins', assassinsRoute);
 app.use('/contracts', contractsRoute);
+//app.use('/', mainRoute);
 
 // Sending a 404 of someone tries to access root directory. This will likely change when front-end is set.
-app.use((req,res) => {
-  res.sendStatus(404);
+app.get('/', (req,res) => {
+  res.sendFile( '/Users/lancehunter/galvanize/unit-2/killbase-app/html/index.html');
+});
+
+app.get('/images/:id', (req,res) => {
+  let id = req.params.id;
+  let fileString = '/Users/lancehunter/galvanize/unit-2/killbase-app/images/' + id;
+  res.sendFile(fileString);
 });
 
 // Turning on listening on the specified port.
