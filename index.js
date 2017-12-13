@@ -4,6 +4,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const morgan = require('morgan');
 const app = express();
 const port = process.env.PORT || 8888;
 
@@ -14,24 +15,36 @@ const contractsRoute = require('./routes/contracts.js');
 // Disabling the x-powered-by: Express header, for security.
 app.disable('x-powered-by');
 
-// Parsing the body of the request.
+// Telling the application that when the status route is used, it will look in the public folder for resources.
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
+// Telling our applications where the template files are located.
+app.set('views', './views');
+
+// Telling express what view engine we're using.
+app.set('view engine', 'ejs');
+
+// Middleware. Body-Parser and Morgan.
 app.use(bodyParser.json());
+app.use(morgan('short'));
 
-// Getting the assassins & contracts routs running.
-app.use('/assassins', assassinsRoute);
-app.use('/contracts', contractsRoute);
-//app.use('/', mainRoute);
+// Getting the assassins & contracts routes running.
+app.use('/assassins-data', assassinsRoute);
+app.use('/contracts-data', contractsRoute);
 
-// Sending a 404 of someone tries to access root directory. This will likely change when front-end is set.
+// Rendering the EJS for the landing page for a request to root.
 app.get('/', (req,res) => {
-  res.sendFile( '/Users/lancehunter/galvanize/unit-2/killbase-app/html/index.html');
+  res.render(path.join(__dirname, 'views/index.ejs'));
 });
 
-app.get('/images/:id', (req,res) => {
-  let id = req.params.id;
-  let fileString = '/Users/lancehunter/galvanize/unit-2/killbase-app/images/' + id;
-  res.sendFile(fileString);
+app.get('/assassins', (req,res) => {
+  res.render(path.join(__dirname, 'views/assassins.ejs'));
 });
+
+app.get('/contracts', (req,res) => {
+  res.render(path.join(__dirname, 'views/assassins.ejs'));
+});
+
 
 // Turning on listening on the specified port.
 app.listen(port, () => {

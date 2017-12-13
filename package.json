@@ -26,11 +26,12 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "csv-parse": "^2.0.0",
+    "ejs": "^2.5.7",
     "eslint": "^4.12.1",
     "express": "^4.16.2",
     "knex": "^0.14.2",
     "morgan": "^1.9.0",
-    "nodemon": "^1.12.5",
+    "nodemon": "^1.12.6",
     "path": "^0.12.7",
     "pg": "^7.4.0",
     "ps": "0.0.2"
