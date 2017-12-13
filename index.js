@@ -34,15 +34,27 @@ app.use('/contracts-data', contractsRoute);
 
 // Rendering the EJS for the landing page for a request to root.
 app.get('/', (req,res) => {
-  res.render(path.join(__dirname, 'views/index.ejs'));
+  res.render(path.join(__dirname, 'views/index.ejs'), {
+    onMain : true,
+    onAssassins : false,
+    onContracts : false
+  });
 });
 
 app.get('/assassins', (req,res) => {
-  res.render(path.join(__dirname, 'views/assassins.ejs'));
+  res.render(path.join(__dirname, 'views/assassins.ejs'), {
+    onMain : false,
+    onAssassins : true,
+    onContracts : false
+  });
 });
 
 app.get('/contracts', (req,res) => {
-  res.render(path.join(__dirname, 'views/assassins.ejs'));
+  res.render(path.join(__dirname, 'views/contracts.ejs'), {
+    onMain : false,
+    onAssassins : false,
+    onContracts : true
+  });
 });
 
 

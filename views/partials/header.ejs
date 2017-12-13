@@ -1,0 +1,32 @@
+<div class="row gutters align-center">
+  <div class="col col-2 push-right">
+    <figure>
+      <a href="/">
+        <% if (onMain) { %>
+        <img src="static/images/killbase-logo.png" alt="KILLBASE logo" height="300" width="300">
+        <% } else { %>
+          <img src="static/images/killbase-logo.png" alt="KILLBASE logo" height="100" width="100">
+        <% } %>
+      </a>
+    </figure>
+  </div>
+  <div class="col col-4 push-middle">
+    <h1 class="title">KILLBASE</h1>
+  </div>
+  <div class="col col-2 push-bottom">
+    <% if (!onMain) { %>
+    <nav class="tabs" data-component="tabs">
+      <ul>
+        <% if (onContracts) { %>
+          <li><a href="/assassins">Assassins</a></li>
+          <li class="active"><a href="#">Contracts</a></li>
+        <% } %>
+        <% if (onAssassins) { %>
+          <li class="active"><a href="#">Assassins</a></li>
+          <li><a href="/contracts">Contracts</a></li>
+        <% } %>
+      </ul>
+    </nav>
+    <% } %>
+  </div>
+</div>
