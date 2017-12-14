@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ./partials/head.ejs %>
+    <title>KILLBASE - <%= assassinObj.name %></title>
+  </head>
+
+  <body>
+    <header>
+      <% include ./partials/header.ejs %>
+    </header>
+
+    <main>
+      <div class="row gutters align-center">
+        <div class="col-2">
+          <figure>
+            <a href="/assassins/<%= assassinObj.id %>">
+            <img src="/static/images/killbase-assassins.png" alt="Profile photo, <%= assassinObj.name %>" height="200" width="200">
+            <figcaption><%= assassinObj.name %></figcaption>
+            </a>
+          </figure>
+        </div>
+        <div class="col-4 offset-1">
+          <h4 class="italic"><%= assassinObj.name %></h4>
+          <% assassinObj.codeNameArr.forEach((codeName) => { %>
+            <h4 class="normal"><%= codeName.code_name %></h4>
+          <% }); %>
+          <table>
+            <tr>
+              <td>Rating:</td>
+              <td><%= assassinObj.rating %></td>
+              <td>Kills:</td>
+              <td><%= assassinObj.kills %></td>
+            </tr>
+            <tr>
+              <td>Price:</td>
+              <td><%= assassinObj.price %></td>
+              <td>Age:</td>
+              <td><%= assassinObj.age %></td>
+            </tr>
+            <tr>
+              <td>Weapons:</td>
+              <td><%= assassinObj.weapon_name %></td>
+              <td>Contact:</td>
+              <td><%= assassinObj.contact_info %></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-1 offset-1">
+          <button class="button secondary round small" id="edit<%= assassinObj.id %>">Edit</button>
+          <p></p>
+          <button class="button secondary round small" id="delete<%= assassinObj.id %>">Delete</button>
+        </div>
+      </div>
+      <div class="row gutters align-center">
+      </div>
+    </main>
+
+    <% include ./partials/footer.ejs %>
+  </body>
+
+</html>

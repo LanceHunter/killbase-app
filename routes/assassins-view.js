@@ -17,7 +17,7 @@ const filterInt = function(value) {
     return NaN;
   };
 
-// This is for GET calls on the main route, /assassins - This returns a page displaying all of the assassins.
+// Getting all assassins bringing them up on the assassins page.
 router.get('/', (req, res) => {
   let resultArr = [];
   knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
@@ -27,6 +27,7 @@ router.get('/', (req, res) => {
         onMain : false,
         onAssassins : true,
         onContracts : false,
+        totalAssassins : true,
         assassins : resultArr
       });
     })
@@ -48,23 +49,46 @@ router.get('/total', (req, res) => {
   })
 });
 
-// For a GET call on /assassins that then includes an ID number. This will return JSON containing information for whichever assassin's id was entered. It will return a 404 if a number is not passed or if the number is out of the range of the current assasin IDs.
+// For a GET call on /assassins that then includes an ID number. This will bring up an individual assassin's page, including the contracts to which they are assigned.
 router.get('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let idRange = [];
+  let assassinObj = {};
   if (!isNaN(id)) {
     knex.select('id').from('assassins')
     .then((idArr) => {
       for (let i=0; i<idArr.length; i++) {
         idRange.push(idArr[i].id);
       }
+      return;
     })
     .then(() => {
       if (idRange.includes(id)) {
         knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.id', id)
         .then((result) => {
-            res.send(result);
+            assassinObj = result[0];
+            return knex.select('code_name').from('code_names').where('assassin_id', id);
           })
+          .then((codeNames) => {
+            assassinObj.codeNameArr = codeNames;
+            return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id);
+          })
+          .then((contract_ids) => {
+            let contractIDs = contract_ids.map((obj) => {
+              return obj.contract_id;
+            });
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').whereIn('contracts.id', contractIDs)
+          })
+          .then((fullContracts) => {
+            console.log(fullContracts);
+            res.render('../views/assassin.ejs', {
+              onMain : false,
+              onAssassins : true,
+              onContracts : false,
+              assassins : false,
+              assassinObj : assassinObj
+            })
+          });
       } else {
         res.sendStatus(404);
       }
