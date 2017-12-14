@@ -4,32 +4,38 @@
     <div class="col-2">
       <figure>
         <a href="#">
-        <img src="static/images/killbase-assassins.png" alt="Picture of assassin-name" height="200" width="200">
-        <figcaption>Assassin-name</figcaption>
+        <img src="static/images/killbase-assassins.png" alt="Picture not available" height="200" width="200">
+        <figcaption>Picture not available</figcaption>
         </a>
       </figure>
     </div>
     <div class="col-7">
-      <h4 class="normal">Assassin Name</h4><h4>Code Name</h4>
+      <h4 class="normal"><%= assassin.name %></h4><h4 id="codeNames<%= assassin.id %>">Click for code name(s)</h4>
       <table>
         <tr>
-          <td>Rating: <%= %></td>
-          <td>Kills: X</td>
+          <td>Rating:</td>
+          <td><%= assassin.rating %></td>
+          <td>Kills:</td>
+          <td><%= assassin.kills %></td>
         </tr>
         <tr>
-          <td>Price: X</td>
-          <td>Age: X</td>
+          <td>Price:</td>
+          <td><%= assassin.price %></td>
+          <td>Age:</td>
+          <td><%= assassin.age %></td>
         </tr>
         <tr>
-          <td>Weapons: X</td>
-          <td>Contact: X</td>
+          <td>Weapons:</td>
+          <td><%= assassin.weapon_name %></td>
+          <td>Contact:</td>
+          <td><%= assassin.contact_info %></td>
         </tr>
       </table>
     </div>
     <div class="col-2">
-      <button class="button secondary round small">Edit</button>
+      <button class="button secondary round small" id="edit<%= assassin.id %>">Edit</button>
       <p> </p>
-      <button class="button secondary round small">Delete</button>
+      <button class="button secondary round small" id="delete<%= assassin.id %>">Delete</button>
     </div>
   </div>
 </div>

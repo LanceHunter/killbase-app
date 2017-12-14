@@ -13,8 +13,10 @@
     <main>
       <div class="row gutters align-center">
         <div class="col-8 align-center">
-          <h2 class="normal">Active Assassins</h2>
-          <% include ./partials/assassinframe.ejs %>
+          <h2 class="normal">Active Assassins - <%= assassins.length %></h2>
+          <% assassins.forEach((assassin) => { %>
+          <%   include ./partials/assassinframe.ejs %>
+          <% }) %>
         </div>
       </div>
     </main>

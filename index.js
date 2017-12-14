@@ -9,8 +9,11 @@ const app = express();
 const port = process.env.PORT || 8888;
 
 // Requiring the code for the assassins & contracts routes.
-const assassinsRoute = require('./routes/assassins.js');
-const contractsRoute = require('./routes/contracts.js');
+const assassinsAPI = require('./routes/assassins-data.js');
+const contractsAPI = require('./routes/contracts-data.js');
+const assassinsViewRoute = require('./routes/assassins-view.js');
+const contractssViewRoute = require('./routes/contracts-view.js');
+
 
 // Disabling the x-powered-by: Express header, for security.
 app.disable('x-powered-by');
@@ -29,8 +32,11 @@ app.use(bodyParser.json());
 app.use(morgan('short'));
 
 // Getting the assassins & contracts routes running.
-app.use('/assassins-data', assassinsRoute);
-app.use('/contracts-data', contractsRoute);
+app.use('/api/assassins', assassinsAPI);
+app.use('/api/contracts', contractsAPI);
+app.use('/assassins', assassinsViewRoute);
+app.use('/contracts', contractssViewRoute);
+
 
 // Rendering the EJS for the landing page for a request to root.
 app.get('/', (req,res) => {
