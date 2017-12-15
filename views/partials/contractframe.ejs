@@ -3,7 +3,7 @@
   <div class="row between align-center">
     <div class="col-2">
       <figure>
-        <a href="contracts/<%= contract.id %>">
+        <a href="contracts/<%= contract.contract_set_id %>">
         <img src="<%= contract.photo_url %>" alt="Photograph of <%= contract.target_name %>" height="200" width="200">
         <figcaption><%= contract.name %></figcaption>
         </a>
@@ -27,11 +27,11 @@
       </table>
     </div>
     <div class="col-2">
-      <button class="button secondary round small" id="edit<%= contract.id %>">Edit</button>
+      <button class="button secondary round small" id="edit<%= contract.contract_set_id %>">Edit</button>
       <p> </p>
-      <button class="button secondary round small" id="delete<%= contract.id %>">Delete</button>
+      <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Delete</button>
       <p> </p>
-      <button class="button secondary round small" id="delete<%= contract.id %>">Complete</button>
+      <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Complete</button>
     </div>
   </div>
 </div>

@@ -85,7 +85,7 @@ router.get('/:id', (req, res) => {
       })
       .then(() => {
         if (idRange.includes(id)) {
-          knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id', id)
+          knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.contract_set_id', id)
             .then((result) => {
               res.send(result);
             });
@@ -199,7 +199,7 @@ router.post('/', (req, res) => {
     return knex('contracts').insert(contractObj).returning('id');
   })
   .then((contract_id) => {
-    return           knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id', contract_id[0]);
+    return           knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.contract_set_id', contract_id[0]);
   })
   .then((response) => {
     res.send(response);

@@ -68,7 +68,7 @@ router.get('/search', (req, res) => {
             let contractIDs = contract_ids.map((obj) => {
               return obj.contract_id;
             });
-            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.id', contractIDs)
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs)
           })
           .then((fullContracts) => {
             assassinObj.contracts = fullContracts;
@@ -118,7 +118,7 @@ router.get('/search', (req, res) => {
           let contractIDs = contract_ids.map((obj) => {
             return obj.contract_id;
           });
-          return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.id', contractIDs)
+          return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs)
         })
         .then((fullContracts) => {
           assassinObj.contracts = fullContracts;
@@ -170,7 +170,7 @@ router.get('/:id', (req, res) => {
             let contractIDs = contract_ids.map((obj) => {
               return obj.contract_id;
             });
-            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.id', contractIDs)
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs)
           })
           .then((fullContracts) => {
             assassinObj.contracts = fullContracts;

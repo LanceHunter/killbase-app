@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>KILLBASE - <%= contracts.name %></title>
+    <title>KILLBASE - <%= contract.name %></title>
     <% include ./partials/head.ejs %>
   </head>
 
@@ -14,7 +14,6 @@
       <div class="row gutters align-center">
         <div class="col-8 align-center">
           <div>
-          <h2 class="normal"><%= contract.name %></h2>
             <form class="form" action="/contracts/search" method="get">
                 <div class="form-item">
                     <div class="append w60 w100-sm">
@@ -27,10 +26,80 @@
                     </div>
                 </div>
             </form>
+            <h2 class="normal"><%= contract.name %></h2>
           </div>
-
         </div>
       </div>
+      <div class="row gutters align-center">
+        <div class="col-2">
+          <figure>
+            <a href="/contracts/<%= contract.contract_set_id %>">
+            <img src="<%= contract.photo_url %>" alt="Profile photo, <%= contract.name %>" height="200" width="200">
+            <figcaption><%= contract.name %></figcaption>
+            </a>
+          </figure>
+        </div>
+        <div class="col-4 offset-1">
+          <table>
+            <tr>
+              <td>Client:</td>
+              <td><%= contract.client_name %></td>
+            </tr>
+            <tr>
+              <td>Budget:</td>
+              <td><%= contract.budget %></td>
+            </tr>
+            <tr>
+              <td>Target Location:</td>
+              <td><%= contract.location %></td>
+            </tr>
+            <tr>
+              <td>Security Level:</td>
+              <td><%= contract.security_level %></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-2 offset-1">
+          <button class="button secondary round small" id="edit<%= contract.contract_set_id %>">Edit</button>
+          <p> </p>
+          <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Delete</button>
+          <p> </p>
+          <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Complete</button>
+          <p> </p>
+          <div class="form-item">
+            <select>
+                <% let assassinCheckArr = []; %>
+                <% contract.totalAssassins.forEach((assassin) => { %>
+                <% if (!assassinCheckArr.includes(assassin.id)) { %>
+                <%   if (assassin.name) {  %>
+                    <option value="<%= assassin.id %>"><%= assassin.name %></option>
+                <%   } else { %>
+                  <option value="<%= assassin.id %>"><%= assassin.code_name %></option>
+                <%   } %>
+                <% assassinCheckArr.push(assassin.id); %>
+                <% } %>
+                <% }) %>
+            </select>
+            <button class="button secondary outline round small">Assign Assassin</button>
+          </div>
+        </div>
+
+        <div class="col-10 push-center contractsMultiview">
+
+          <h3>Contracted Assassins</h3>
+          <% let previousAssassins = []; %>
+          <% contract.assassins.forEach((assassin) => { %>
+            <% if (!previousAssassins.includes(assassin.id)) { %>
+            <% previousAssassins.push(assassin.id); %>
+            <% include ./partials/assassinsmini.ejs %>
+            <% } %>
+          <% }); %>
+          <% if (contract.assassins.length === 0) { %>
+            <p>None</p>
+          <% } %>
+        </div>
+
+
     </main>
 
     <% include ./partials/footer.ejs %>

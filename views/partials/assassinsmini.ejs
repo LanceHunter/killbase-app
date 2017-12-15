@@ -1,0 +1,25 @@
+<hr class="assassinsMultiview">
+  <div class="row align-center">
+    <div class="col-2">
+      <figure>
+        <a href="assassins/<%= assassin.id %>">
+        <img src="/static/images/killbase-assassins.png" alt="Photo of <%= assassin.name %>" height="100" width="100">
+        <figcaption><%= assassin.name %></figcaption>
+        </a>
+      </figure>
+    </div>
+    <div class="col-7">
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td><%= assassin.name %></td>
+          <td><%= assassin.code_name %></td>
+          <td>Rating:</td>
+          <td><%= assassin.rating %></td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-1 offset-1">
+      <button class="button secondary round small" id="remove<%= assassin.id %>">Remove</button>
+    </div>
+  </div>

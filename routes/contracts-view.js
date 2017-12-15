@@ -43,32 +43,39 @@ router.get('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   console.log(`I see the ID. It's - ${id}`);
   if (!isNaN(id)) {
-    knex.select('id').from('contracts')
+    let contractObj;
+    let totalAssassinArr;
+    knex.select('contract_set_id').from('contracts')
       .then((idArr) => {
         for (let i = 0; i < idArr.length; i++) {
-          idRange.push(idArr[i].id);
+          idRange.push(idArr[i].contract_set_id);
         }
         return;
       })
       .then(() => {
         if (idRange.includes(id)) {
           console.log('Made it to the first search');
-          let contractObj;
-          return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id',id)
+          return knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
+          .then((assassinTotal) => {
+            totalAssassinArr = assassinTotal;
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').where('contracts.contract_set_id',id);
+          })
           .then((result) => {
             console.log(result);
             contractObj = result[0];
-            return knex.select('assassin_id').from('assassins_contracts').where('contract_id', contractObj.id);
+            contractObj.totalAssassins = totalAssassinArr;
+            return knex.select('assassin_id').from('assassins_contracts').where('contract_id', contractObj.contract_set_id);
           })
           .then((assassinResults) => {
             console.log(`Made it to the second search.`);
             let assassinIDs = assassinResults.map((obj) => {
               return obj.assassin_id;
             });
-            return knex.select('*').from('assassins').fullOuterJoin('code_names', 'contracts.client_id', 'clients.id').whereIn('assassins.id', assassinIDs);
+            return knex.select('*').from('assassins').join('code_names', 'assassins.id', 'code_names.assassin_id').whereIn('assassins.id', assassinIDs);
           })
           .then((assignedAssassins) => {
             contractObj.assassins = assignedAssassins;
+            console.log("Make sure we have total assassins - ", contractObj.totalAssassins);
             res.render('../views/contract.ejs', {
               onMain : false,
               onAssassins : false,
