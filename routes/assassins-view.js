@@ -43,7 +43,7 @@ router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch;
   let name = req.query.nameSearch;
   let assassinObj = {};
-  if (queryType === `Search by Name`) {
+  if (queryType === `Name`) {
     console.log("This is the Type - " + queryType);
     let namesRange = [];
     knex.select('name').from('assassins')
@@ -89,6 +89,7 @@ router.get('/search', (req, res) => {
       res.sendStatus(500);
     });
   } else {
+    //This is basically the same as above, but searching by Code Name instead of Name.
     let codeNamesRange = [];
     knex.select('code_name').from('code_names')
     .then((codeNameArr) => {

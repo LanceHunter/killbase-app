@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>KILLBASE - Assassins</title>
-  <meta name="author" content="R. Lance Hunter">
-  <meta name="description" content="Killbase, an assignment for Galvanize Wed Development Immersive Q2">
-  <meta name="keywords" content="assassins,joke">
-  <link rel="shortcut icon" href="static/images/favicon.png" type="image/png">
-  <link rel="stylesheet" href="static/css/kube.css" type="text/css">
-  <link rel="stylesheet" href="static/css/style.css" type="text/css">
-  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
+    <title>KILLBASE - Contracts</title>
+    <% include ./partials/head.ejs %>
   </head>
 
   <body>
@@ -20,6 +12,26 @@
 
     <main>
       <div class="row gutters align-center">
+        <div class="col-8 align-center">
+          <div>
+          <h2 class="normal">Active Contracts - <%= contracts.length %></h2>
+            <form class="form" action="/contracts/search" method="get">
+                <div class="form-item">
+                    <div class="append w60 w100-sm">
+                      <input type="text secondary" class="small" id="seach" name="nameSearch">
+                      <button class="button small secondary outline"><i class="kube-search"></i></button>
+                      <select class="small w30" name="typeSearch" id="searchOptions">
+                          <option>Target</option>
+                          <option>Client</option>
+                      </select>
+                    </div>
+                </div>
+            </form>
+          </div>
+          <% contracts.forEach((contract) => { %>
+            <%   include ./partials/contractframe.ejs %>
+          <% }) %>
+        </div>
       </div>
     </main>
 

@@ -17,11 +17,19 @@ const filterInt = function(value) {
   return NaN;
 };
 
-// For a GET request to the main contracts route, /contracts - This will return JSON for all contracts with their target information included.
+// For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts.
 router.get('/', (req, res) => {
-  knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id')
+  knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id')
     .then((result) => {
-      res.send(result);
+      let contractArr = result;
+      console.log(contractArr);
+      res.render('../views/contracts.ejs', {
+        onMain : false,
+        onAssassins : false,
+        onContracts : true,
+        totalAssassins : false,
+        contracts : contractArr
+      });
     })
     .catch((err) => {
       console.error(err);
@@ -29,66 +37,46 @@ router.get('/', (req, res) => {
     });
 });
 
-// For a GET request to the route /contracts/total - This will return a JSON object with key "count" whose value is equal to the total number of contracts.
-router.get('/total', (req, res) => {
-  knex('contracts').countDistinct('id')
-    .then((result) => {
-      res.send(result[0]);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    })
-});
-
-// For a GET request to the route /contracts/targets/ that then passes a name value to be searched. - This will return a JSON object with the contract and target information.
-router.get('/targets/:id', (req, res) => {
-let name = req.params.id;
-let namesRange = [];
-knex.select('name').from('targets')
-  .then((nameArr) => {
-    console.log(nameArr);
-    for (let i = 0; i < nameArr.length; i++) {
-      namesRange.push(nameArr[i].name);
-    }
-  })
-  .then(() => {
-    if (namesRange.includes(name)) {
-      knex.select('id').from('targets').where('name', name)
-        .then((result) => {
-          return knex.select('*').from('targets').fullOuterJoin('contracts', 'targets.id', 'contracts.target_id').where('targets.id', result[0].id);
-        })
-        .then((result) => {
-          res.send(result);
-        })
-    } else {
-      res.sendStatus(404);
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    res.sendStatus(500);
-  });
-});
-
-
-// For a GET request to the route /contracts that includes an id. - This will return JSON of the join table between the contract with the matching id and its target.
+// For a GET request to the route /contracts that includes an id. - This will return the contract page with target, client, and assigned assassins..
 router.get('/:id', (req, res) => {
   let idRange = [];
   let id = filterInt(req.params.id);
+  console.log(`I see the ID. It's - ${id}`);
   if (!isNaN(id)) {
     knex.select('id').from('contracts')
       .then((idArr) => {
         for (let i = 0; i < idArr.length; i++) {
           idRange.push(idArr[i].id);
         }
+        return;
       })
       .then(() => {
         if (idRange.includes(id)) {
-          knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id', id)
-            .then((result) => {
-              res.send(result);
+          console.log('Made it to the first search');
+          let contractObj;
+          return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id',id)
+          .then((result) => {
+            console.log(result);
+            contractObj = result[0];
+            return knex.select('assassin_id').from('assassins_contracts').where('contract_id', contractObj.id);
+          })
+          .then((assassinResults) => {
+            console.log(`Made it to the second search.`);
+            let assassinIDs = assassinResults.map((obj) => {
+              return obj.assassin_id;
             });
+            return knex.select('*').from('assassins').fullOuterJoin('code_names', 'contracts.client_id', 'clients.id').whereIn('assassins.id', assassinIDs);
+          })
+          .then((assignedAssassins) => {
+            contractObj.assassins = assignedAssassins;
+            res.render('../views/contract.ejs', {
+              onMain : false,
+              onAssassins : false,
+              onContracts : true,
+              assassins : false,
+              contract : contractObj
+            });
+          });
         } else {
           res.sendStatus(404);
         }
@@ -98,39 +86,12 @@ router.get('/:id', (req, res) => {
         res.sendStatus(500);
       });
   } else {
+    console.log(`This isn't a number`)
     res.sendStatus(404);
   }
 });
 
-// For a GET request to the route /contracts/clients/ that includes an id. - This will return JSON of an object containing the key "name" whose value is the name of the client whose ID matches the one provided.
-router.get('/clients/:id', (req, res) => {
-  let idRange = [];
-  let id = filterInt(req.params.id);
-  if (!isNaN(id)) {
-    knex.select('id').from('clients')
-      .then((idArr) => {
-        for (let i = 0; i < idArr.length; i++) {
-          idRange.push(idArr[i].id);
-        }
-      })
-      .then(() => {
-        if (idRange.includes(id)) {
-          knex.select('name').from('clients').where('id', id)
-            .then((result) => {
-              res.send(result[0]);
-            });
-        } else {
-          res.sendStatus(404);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(500);
-      });
-  } else {
-    res.sendStatus(404);
-  }
-});
+
 
 // For a POST request to /contracts/assign - This requires that there be an assassin_id and a contact_id in the body. It assigns a contract to an assassin.
 router.post('/assign', (req, res) => {

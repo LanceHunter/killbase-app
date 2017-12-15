@@ -1,0 +1,37 @@
+<hr class="contractsMultiview">
+<div class="col-12 contractsMultiview">
+  <div class="row between align-center">
+    <div class="col-2">
+      <figure>
+        <a href="contracts/<%= contract.id %>">
+        <img src="<%= contract.photo_url %>" alt="Photograph of <%= contract.target_name %>" height="200" width="200">
+        <figcaption><%= contract.name %></figcaption>
+        </a>
+      </figure>
+    </div>
+    <div class="col-7">
+      <h4 class="normal"><%= contract.name %></h4>
+      <table>
+        <tr>
+          <td>Client:</td>
+          <td><%= contract.client_name %></td>
+          <td>Budget:</td>
+          <td><%= contract.budget %></td>
+        </tr>
+        <tr>
+          <td>Target Location:</td>
+          <td><%= contract.location %></td>
+          <td>Security Level:</td>
+          <td><%= contract.security_level %></td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-2">
+      <button class="button secondary round small" id="edit<%= contract.id %>">Edit</button>
+      <p> </p>
+      <button class="button secondary round small" id="delete<%= contract.id %>">Delete</button>
+      <p> </p>
+      <button class="button secondary round small" id="delete<%= contract.id %>">Complete</button>
+    </div>
+  </div>
+</div>

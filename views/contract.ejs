@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>KILLBASE - <%= contracts.name %></title>
     <% include ./partials/head.ejs %>
-    <title>KILLBASE - Assassins</title>
   </head>
 
   <body>
@@ -14,28 +14,25 @@
       <div class="row gutters align-center">
         <div class="col-8 align-center">
           <div>
-          <h2 class="normal">Active Assassins - <%= assassins.length %></h2>
-            <form class="form" action="/assassins/search" method="get">
+          <h2 class="normal"><%= contract.name %></h2>
+            <form class="form" action="/contracts/search" method="get">
                 <div class="form-item">
                     <div class="append w60 w100-sm">
                       <input type="text secondary" class="small" id="seach" name="nameSearch">
                       <button class="button small secondary outline"><i class="kube-search"></i></button>
                       <select class="small w30" name="typeSearch" id="searchOptions">
-                          <option>Name</option>
-                          <option>Code Name</option>
+                          <option>Target</option>
+                          <option>Client</option>
                       </select>
                     </div>
                 </div>
             </form>
           </div>
-          <% assassins.forEach((assassin) => { %>
-            <%   include ./partials/assassinframe.ejs %>
-          <% }) %>
+
         </div>
       </div>
     </main>
 
     <% include ./partials/footer.ejs %>
   </body>
-
 </html>
