@@ -66,22 +66,24 @@
           <p> </p>
           <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Complete</button>
           <p> </p>
-          <div class="form-item">
-            <select>
-                <% let assassinCheckArr = []; %>
-                <% contract.totalAssassins.forEach((assassin) => { %>
-                <% if (!assassinCheckArr.includes(assassin.id)) { %>
-                <%   if (assassin.name) {  %>
-                    <option value="<%= assassin.id %>"><%= assassin.name %></option>
-                <%   } else { %>
-                  <option value="<%= assassin.id %>"><%= assassin.code_name %></option>
-                <%   } %>
-                <% assassinCheckArr.push(assassin.id); %>
-                <% } %>
-                <% }) %>
-            </select>
-            <button class="button secondary outline round small">Assign Assassin</button>
+          <form method="post" action="/contracts/assign" class="form">
+            <div class="form-item">
+              <select>
+                  <% let assassinCheckArr = []; %>
+                  <% contract.totalAssassins.forEach((assassin) => { %>
+                  <% if (!assassinCheckArr.includes(assassin.id)) { %>
+                  <%   if (assassin.name) {  %>
+                      <option value="<%= assassin.id %>"><%= assassin.name %></option>
+                  <%   } else { %>
+                    <option value="<%= assassin.id %>"><%= assassin.code_name %></option>
+                  <%   } %>
+                  <% assassinCheckArr.push(assassin.id); %>
+                  <% } %>
+                  <% }) %>
+              </select>
+              <button class="button secondary outline round small">Assign Assassin</button>
           </div>
+          </form>
         </div>
 
         <div class="col-10 push-center contractsMultiview">
