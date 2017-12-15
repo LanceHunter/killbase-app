@@ -20,21 +20,22 @@ const filterInt = function(value) {
 // Getting all assassins bringing them up on the assassins page.
 router.get('/', (req, res) => {
   let resultArr = [];
+  let codeNameArr = [];
   knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
   .then((result) => {
-      resultArr = result;
-      res.render('../views/assassins.ejs', {
-        onMain : false,
-        onAssassins : true,
-        onContracts : false,
-        totalAssassins : true,
-        assassins : resultArr
-      });
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
+    resultArr = result;
+    res.render('../views/assassins.ejs', {
+      onMain : false,
+      onAssassins : true,
+      onContracts : false,
+      totalAssassins : true,
+      assassins : resultArr
     });
+  })
+  .catch((err) => {
+    console.error(err);
+    res.sendStatus(500);
+  });
 });
 
 // For a GET call on /assassins/total - This returns an object with key "count" whose value is equal to the total number of assassins.
@@ -77,17 +78,17 @@ router.get('/:id', (req, res) => {
             let contractIDs = contract_ids.map((obj) => {
               return obj.contract_id;
             });
-            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').whereIn('contracts.id', contractIDs)
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.id', contractIDs)
           })
           .then((fullContracts) => {
-            console.log(fullContracts);
+            assassinObj.contracts = fullContracts;
             res.render('../views/assassin.ejs', {
               onMain : false,
               onAssassins : true,
               onContracts : false,
               assassins : false,
               assassinObj : assassinObj
-            })
+            });
           });
       } else {
         res.sendStatus(404);

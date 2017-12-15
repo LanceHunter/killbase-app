@@ -115,7 +115,7 @@ router.get('/clients/:id', (req, res) => {
       })
       .then(() => {
         if (idRange.includes(id)) {
-          knex.select('name').from('clients').where('id', id)
+          knex.select('client_name').from('clients').where('id', id)
             .then((result) => {
               res.send(result[0]);
             });
@@ -166,7 +166,7 @@ router.post('/', (req, res) => {
     'security_level' : bodyObj.security_level
   };
   let clientObj = {
-    'name' : bodyObj.client_name
+    'client_name' : bodyObj.client_name
   }
   knex.select('name').table('clients')
   .then((results) => {
@@ -180,7 +180,7 @@ router.post('/', (req, res) => {
     targetID = target_id[0];
     if (clientArr.includes(bodyObj.client_name)) {
       console.log('Name not found.')
-      return knex.select('id').from('clients').where('name', bodyObj.client_name);
+      return knex.select('id').from('clients').where('client_name', bodyObj.client_name);
     } else {
       console.log('Name found')
       return knex('clients').insert({name:bodyObj.client_name}).returning('id');

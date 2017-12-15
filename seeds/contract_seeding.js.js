@@ -47,7 +47,7 @@ exports.seed = function(knex, Promise) {
         let clientValues = csv[i].split(',');
         clientValues[4] = clientValues[4].trim().slice(1,(clientValues[4].length-2));
         clientObj = {
-          "name" : clientValues[4]
+          "client_name" : clientValues[4]
         }
         clientArr.push(clientObj);
       }
@@ -62,7 +62,7 @@ exports.seed = function(knex, Promise) {
         contractValues[0] = contractValues[0].trim().slice(1,(contractValues[0].length-1));        contractValues[4] = contractValues[4].trim().slice(1,(contractValues[4].length-2));
           knex('targets').returning('id').where('name',contractValues[0])
           .then((target_id) => {
-            knex('clients').returning('id').where('name', contractValues[4])
+            knex('clients').returning('id').where('client_name', contractValues[4])
             .then((client_id) => {
               console.log('Client id - ' + client_id[0].id);
               console.log('Target ID - ' + target_id[0].id);

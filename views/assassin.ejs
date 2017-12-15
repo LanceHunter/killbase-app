@@ -52,7 +52,11 @@
           <button class="button secondary round small" id="delete<%= assassinObj.id %>">Delete</button>
         </div>
       </div>
-      <div class="row gutters align-center">
+      <div class="col-8 push-center contractsMultiview">
+        <h3>Active Contracts</h3>
+      <% assassinObj.contracts.forEach((contract) => { %>
+        <% include ./partials/minicontract.ejs %>
+      <% }); %>
       </div>
     </main>
 

@@ -2,7 +2,7 @@
 exports.up = function(knex, Promise) {
   return knex.schema.createTableIfNotExists('clients', (table) => {
     table.increments();
-    table.string('name').notNullable();
+    table.string('client_name').notNullable();
   });
 };
 

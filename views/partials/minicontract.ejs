@@ -1,0 +1,27 @@
+<hr class="contractsMultiview">
+  <div class="row align-center">
+    <div class="col-2">
+      <figure>
+        <a href="contracts/<%= contract.id %>">
+        <img src="<%= contract.photo_url %>" alt="Target photo, <%= contract.name %>" height="100" width="100">
+        <figcaption><%= contract.name %></figcaption>
+        </a>
+      </figure>
+    </div>
+    <div class="col-7">
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td><%= contract.name %></td>
+          <td>Security Level:</td>
+          <td><%= contract.security_level %></td>
+        </tr>
+        <tr>
+          <td>Location:</td>
+          <td><%= contract.location %></td>
+          <td>Client:</td>
+          <td><%= contract.client_name %></td>
+        </tr>
+      </table>
+    </div>
+  </div>

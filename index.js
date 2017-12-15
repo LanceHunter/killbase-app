@@ -47,22 +47,6 @@ app.get('/', (req,res) => {
   });
 });
 
-app.get('/assassins', (req,res) => {
-  res.render(path.join(__dirname, 'views/assassins.ejs'), {
-    onMain : false,
-    onAssassins : true,
-    onContracts : false
-  });
-});
-
-app.get('/contracts', (req,res) => {
-  res.render(path.join(__dirname, 'views/contracts.ejs'), {
-    onMain : false,
-    onAssassins : false,
-    onContracts : true
-  });
-});
-
 
 // Turning on listening on the specified port.
 app.listen(port, () => {
