@@ -2,7 +2,7 @@
   console.log("You see me!");
 
 /*
-  let searchField = $('#seach');
+  let editButton = $('#seach');
   let searchButton = $('#searchButton');
   let searchOptions = $('#searchOptions');
 
