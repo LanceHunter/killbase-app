@@ -13,22 +13,12 @@
   <div class="col col-4 push-middle">
     <h1 class="title">KILLBASE</h1>
   </div>
+  <% if (!onMain) { %>
+    <nav class="pagination pager push-bottom">
+        <ul>
+            <li class="prev"><a href="/assassins">Assassins</a></li>
+            <li class="next"><a href="/contracts">Contracts</a></li>
+        </ul>
+    </nav>
+  <% } %>
 </div>
-<% if (!onMain) { %>
-<div class="row gutters align-center">
-<div class="col col-9">
-  <nav class="tabs" data-component="tabs">
-    <ul>
-      <% if (onContracts) { %>
-        <li><a href="/assassins">Assassins</a></li>
-        <li class="active"><a href="/contracts">Contracts</a></li>
-      <% } %>
-      <% if (onAssassins) { %>
-        <li class="active"><a href="/assassins">Assassins</a></li>
-        <li><a href="/contracts">Contracts</a></li>
-      <% } %>
-    </ul>
-  </nav>
-</div>
-</div>
-<% } %>

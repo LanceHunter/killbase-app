@@ -12,6 +12,26 @@
 
     <main>
       <div class="row gutters align-center">
+        <div class="col-10">
+          <form class="form" action="/assassins/search" method="get">
+              <div class="form-item">
+                  <div class="append w60 w100-sm">
+                    <input type="text search secondary" class="small" id="seach" name="nameSearch">
+                    <select class="small w35" name="typeSearch" id="searchOptions">
+                        <option>Search by Name</option>
+                        <option>Search by Code Name</option>
+                    </select>
+                  </div>
+              </div>
+          </form>
+        </div>
+      </div>
+      <div class="row gutters align-center">
+        <div class="col-10">
+          <h2 class="normal"><%= assassinObj.name %></h2>
+        </div>
+      </div>
+      <div class="row gutters align-center">
         <div class="col-2">
           <figure>
             <a href="/assassins/<%= assassinObj.id %>">
@@ -21,7 +41,6 @@
           </figure>
         </div>
         <div class="col-4 offset-1">
-          <h4 class="italic"><%= assassinObj.name %></h4>
           <% assassinObj.codeNameArr.forEach((codeName) => { %>
             <h4 class="normal"><%= codeName.code_name %></h4>
           <% }); %>
@@ -57,6 +76,9 @@
       <% assassinObj.contracts.forEach((contract) => { %>
         <% include ./partials/minicontract.ejs %>
       <% }); %>
+      <% if (assassinObj.contracts.length === 0) { %>
+        <p>None</p>
+      <% } %>
       </div>
     </main>
 

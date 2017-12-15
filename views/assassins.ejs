@@ -13,7 +13,29 @@
     <main>
       <div class="row gutters align-center">
         <div class="col-8 align-center">
+          <div>
           <h2 class="normal">Active Assassins - <%= assassins.length %></h2>
+            <form class="form" action="/assassins/search" method="get">
+                <div class="form-item">
+                    <div class="append w60 w100-sm">
+                      <input type="text search secondary" class="small" id="seach" name="nameSearch">
+                      <select class="small w35" name="typeSearch" id="searchOptions">
+                          <option>Search by Name</option>
+                          <option>Search by Code Name</option>
+                      </select>
+                    </div>
+                </div>
+            </form>
+          </div>
+          <div id="assassinModal" class="modal-box hide">
+              <div class="modal">
+                  <span class="close"></span>
+                  <div class="modal-header">Modal Header</div>
+                  <div id="assassinModalBody" class="modal-body">
+                      <a href="#" id="modalClose">Close</a>
+                  </div>
+              </div>
+          </div>
           <% assassins.forEach((assassin) => { %>
             <%   include ./partials/assassinframe.ejs %>
           <% }) %>

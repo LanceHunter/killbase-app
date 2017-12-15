@@ -4,7 +4,6 @@
 const env = 'development';
 const config = require('../knexfile.js')[env];
 const knex = require('knex')(config);
-const path = require('path');
 
 //Setting up express routing
 const express = require('express');
@@ -19,6 +18,7 @@ const filterInt = function(value) {
 
 // Getting all assassins bringing them up on the assassins page.
 router.get('/', (req, res) => {
+  console.log(req.body);
   let resultArr = [];
   let codeNameArr = [];
   knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
@@ -38,16 +38,107 @@ router.get('/', (req, res) => {
   });
 });
 
-// For a GET call on /assassins/total - This returns an object with key "count" whose value is equal to the total number of assassins.
-router.get('/total', (req, res) => {
-  knex('assassins').countDistinct('id')
-  .then ((result) => {
-    res.send(result[0]);
-  })
-  .catch((err) => {
-    console.error(err);
-    res.sendStatus(500);
-  })
+// For a GET request to /assassins/search. The string provided in the request body will be searched.
+router.get('/search', (req, res) => {
+  let queryType = req.query.typeSearch;
+  let name = req.query.nameSearch;
+  let assassinObj = {};
+  if (queryType === `Search by Name`) {
+    console.log("This is the Type - " + queryType);
+    let namesRange = [];
+    knex.select('name').from('assassins')
+    .then((nameArr) => {
+      console.log(nameArr);
+      for (let i=0; i<nameArr.length; i++) {
+        namesRange.push(nameArr[i].name);
+      }
+    })
+    .then(() => {
+      if (namesRange.includes(name)) {
+        knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.name', name)
+        .then((result) => {
+            assassinObj = result[0];
+            return knex.select('code_name').from('code_names').where('assassin_id', assassinObj.id);
+          })
+          .then((codeNames) => {
+            assassinObj.codeNameArr = codeNames;
+            return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id);
+          })
+          .then((contract_ids) => {
+            let contractIDs = contract_ids.map((obj) => {
+              return obj.contract_id;
+            });
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.id', contractIDs)
+          })
+          .then((fullContracts) => {
+            assassinObj.contracts = fullContracts;
+            res.render('../views/assassin.ejs', {
+              onMain : false,
+              onAssassins : true,
+              onContracts : false,
+              assassins : false,
+              assassinObj : assassinObj
+            });
+          });
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else {
+    let codeNamesRange = [];
+    knex.select('code_name').from('code_names')
+    .then((codeNameArr) => {
+      console.log(codeNameArr);
+      for (let i=0; i<codeNameArr.length; i++) {
+        codeNamesRange.push(codeNameArr[i].code_name);
+      }
+    })
+    .then(() => {
+      if (codeNamesRange.includes(name)) {
+        knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').where('code_names.code_name', name)
+        .then((result) => {
+            assassinObj = result[0];
+            assassinObj.codeNameArr = [];
+            assassinObj.codeNameArr.push({
+              'code_name' : assassinObj.code_name
+            });
+            console.log(assassinObj);
+            return knex.select('weapon_name').from('weapons').where('weapons.assassin_id', assassinObj.id);
+        })
+        .then((weapons) => {
+          assassinObj.weapon_name = weapons[0].weapon_name;
+          return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id);
+        })
+        .then((contract_ids) => {
+          let contractIDs = contract_ids.map((obj) => {
+            return obj.contract_id;
+          });
+          return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.id', contractIDs)
+        })
+        .then((fullContracts) => {
+          assassinObj.contracts = fullContracts;
+          res.render('../views/assassin.ejs', {
+            onMain : false,
+            onAssassins : true,
+            onContracts : false,
+            assassins : false,
+            assassinObj : assassinObj
+          });
+        });
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+
+  }
 });
 
 // For a GET call on /assassins that then includes an ID number. This will bring up an individual assassin's page, including the contracts to which they are assigned.
@@ -102,96 +193,6 @@ router.get('/:id', (req, res) => {
     res.sendStatus(404);
   }
 });
-
-// For a GET request to /assassins/names/ that is followed by a string. The string will be searched and if it matches an assassin's name it will return JSON with that assassins information. Otherwise, a 404 is sent.
-router.get('/names/:id', (req, res) => {
-  let name = req.params.id;
-  let namesRange = [];
-  knex.select('name').from('assassins')
-  .then((nameArr) => {
-    console.log(nameArr);
-    for (let i=0; i<nameArr.length; i++) {
-      namesRange.push(nameArr[i].name);
-    }
-  })
-  .then(() => {
-    if (namesRange.includes(name)) {
-      knex.select('*').from('assassins').where('name', name)
-      .then((result) => {
-          res.send(result);
-      })
-    } else {
-      res.sendStatus(404);
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    res.sendStatus(500);
-  });
-});
-
-// For GET requets to /assassins/codenames/all - This requires an id number be passed in that matches the id of an existing assassin, otherwise a 404 is returned. If a valid id is passed in, then an array of all code names for the assassin is returned.
-router.get('/codenames/all/:id', (req, res) => {
-  let id = filterInt(req.params.id);
-  let idArr = [];
-  let nameArr = [];
-  if (!isNaN(id)) {
-    knex.select('id').from('assassins')
-    .then((resultArr) => {
-      for (let i=0; i<resultArr.length; i++) {
-        idArr.push(resultArr[i].id);
-      }
-    })
-    .then(() => {
-      if (idArr.includes(id)) {
-        return knex.select('code_name').from('code_names').where('assassin_id', id);
-      } else {
-        console.log('Not in the array');
-        res.sendStatus(404);
-      }
-    })
-    .then((codeNameArr) => {
-      for (let i=0; i<codeNameArr.length; i++) {
-        nameArr.push(codeNameArr[i].code_name);
-      }
-      res.send(nameArr);
-    })
-
-  } else {
-    console.log('Not a number for ID');
-    res.sendStatus(404);
-  }
-});
-
-
-// For a GET request to /assassins/codenames/ that is followed by a string. The string will be searched and if it matches an assassin's code name it will return JSON with that assassins information. Otherwise, a 404 is sent.
-router.get('/codenames/:id', (req, res) => {
-  let codeName = req.params.id;
-  console.log(codeName);
-  let codeNamesRange = [];
-  knex.select('code_name').from('code_names')
-  .then((codeNameArr) => {
-    console.log(codeNameArr);
-    for (let i=0; i<codeNameArr.length; i++) {
-      codeNamesRange.push(codeNameArr[i].code_name);
-    }
-  })
-  .then(() => {
-    if (codeNamesRange.includes(codeName)) {
-      knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').where('code_names.code_name', codeName)
-      .then((result) => {
-        res.send(result);
-      })
-    } else {
-      res.sendStatus(404);
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    res.sendStatus(500);
-  });
-});
-
 
 
 // For a POST request to /assassins/ - This will post a new assassin with the information provided in the body of the request.
