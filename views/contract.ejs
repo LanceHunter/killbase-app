@@ -66,9 +66,9 @@
           <p> </p>
           <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Complete</button>
           <p> </p>
-          <form method="post" action="/contracts/assign" class="form">
-            <div class="form-item">
-              <select>
+          <form action="/contracts/assign" method="post" class="form">
+            <div class="form-item" name="assassinToAssign">
+              <select id="assassinToAssign">
                   <% let assassinCheckArr = []; %>
                   <% contract.totalAssassins.forEach((assassin) => { %>
                   <% if (!assassinCheckArr.includes(assassin.id)) { %>
@@ -81,8 +81,8 @@
                   <% } %>
                   <% }) %>
               </select>
-              <button class="button secondary outline round small">Assign Assassin</button>
-          </div>
+              <input type="submit" class="button secondary outline round small" value="Assign Assassin" id=>
+            </div>
           </form>
         </div>
 

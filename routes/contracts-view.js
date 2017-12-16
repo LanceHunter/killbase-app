@@ -43,7 +43,6 @@ router.get('/search', (req, res) => {
     let namesRange = []; // For holding the names of all targets. We'll compare against this later.
     knex.select('name').from('targets')
     .then((nameArr) => {
-      console.log(nameArr);
       nameArr.forEach((nameObj) => { // This grabs the target names out of their objects and puts their strings into the namesRange array.
         namesRange.push(nameObj.name);
       });
@@ -82,16 +81,17 @@ router.get('/search', (req, res) => {
         clientNameRange.push(client.client_name);
       }); // Pulling out the client name strings from the array of object results.
       let matchingNames = []; // An array to be used for any client names that match.
-      // We now see if the name provided by the user matches any of the names in the database/clientNameRange array. For every case where it does, the target name is added to the new namesearch array.
+      // We now see if the string provided by the user is in any of the names in the database/clientNameRange array. For every case where it does, the target name is added to the new namesearch array.
       clientNameRange.forEach((fullName) => {
         if (fullName.toUpperCase().includes(name.toUpperCase())) {
           matchingNames.push(fullName);
         }
       });
+      // Then we search for all clients whose names matched the search and return them joined with all contracts to which they are associated as well as the targets for those contracts.
       return knex('clients').fullOuterJoin('contracts', 'clients.id', 'contracts.client_id').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').whereIn('clients.client_name', matchingNames)
     })
     .then((contracts) => {
-      console.log(contracts);
+      // Finally, we take the array of those results and pass it to the multiple contracts view page for rendering.
       res.render('../views/contracts.ejs', {
         onMain : false,
         onAssassins : false,
@@ -104,12 +104,10 @@ router.get('/search', (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
-
   }
 });
 
-
-// For a GET request to the route /contracts that includes an id. - This will return the contract page with target, client, and assigned assassins..
+// For a GET request to the route /contracts that includes an id. - This will return the contract page with target, client, and assigned assassins.
 router.get('/:id', (req, res) => {
   let idRange = [];
   let id = filterInt(req.params.id);
@@ -170,12 +168,11 @@ router.get('/:id', (req, res) => {
   }
 });
 
-
-
 // For a POST request to /contracts/assign - This requires that there be an assassin_id and a contact_id in the body. It assigns a contract to an assassin.
 router.post('/assign', (req, res) => {
   let assignmentObj = req.body;
   console.log("Post is happening - ", assignmentObj);
+
 //  if (assignmentObj.assassin_id && assignmentObj.contract_id) {
 //    knex('assassins_contracts').insert({
 //      "assassin_id" : assignmentObj.assassin_id,
