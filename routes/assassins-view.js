@@ -16,7 +16,7 @@ const filterInt = function(value) {
     return NaN;
   };
 
-// Getting all assassins bringing them up on the assassins page.
+// For a GET request to /assassins/ - This gets all assassins from the database, gets the associated weapons for the assasins, and renders it to the assassins multi-view page (assassins.ejs). This passes the array of returned assassins to the page for rendering.
 router.get('/', (req, res) => {
   console.log(req.body);
   let resultArr = [];
@@ -38,40 +38,41 @@ router.get('/', (req, res) => {
   });
 });
 
-// For a GET request to /assassins/search. The string provided in the request body will be searched.
+// For a GET request to /assassins/search. This checks the body of the request for two things, the query type ("typeSearch" in the request body, becoming the variable "queryType") and the name being searched ("nameSearch" in the request body, becoming the variable "name"). If then performs a search for either the name or the codename of the assassin, using whatever string was entered in the name. If there is a matching assassin, their information is passed back and rendered to the individual assasin page (assassin.ejs).
 router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch;
   let name = req.query.nameSearch;
   let assassinObj = {};
+// Checking to see if the query type is for the "Name". If so, the logic below is performed for searching the assassin's name.
   if (queryType === `Name`) {
-    console.log("This is the Type - " + queryType);
-    let namesRange = [];
+    let namesRange = []; // This will hold all of the assassin names.
     knex.select('name').from('assassins')
     .then((nameArr) => {
-      console.log(nameArr);
       for (let i=0; i<nameArr.length; i++) {
         namesRange.push(nameArr[i].name);
-      }
+      } // This grabs all assassin names from the db and puts them into the namesRange array
+      return;
     })
     .then(() => {
+      // We now see if the name provided by the user matches any in the database. If it does, we grab that assassin and the assassin's weapon from the database.
       if (namesRange.includes(name)) {
         knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.name', name)
         .then((result) => {
-            assassinObj = result[0];
-            return knex.select('code_name').from('code_names').where('assassin_id', assassinObj.id);
+            assassinObj = result[0]; // We put the matching assassin into the "assassinObj" variable, so that the information in't trapped in this scope.
+            return knex.select('code_name').from('code_names').where('assassin_id', assassinObj.id); // We now grab any code names for the assassin.
           })
           .then((codeNames) => {
-            assassinObj.codeNameArr = codeNames;
-            return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id);
+            assassinObj.codeNameArr = codeNames; // The code names are added to an array on the assassinObj.
+            return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id); //We now search for any contracts to which the assassin is assigned.
           })
           .then((contract_ids) => {
             let contractIDs = contract_ids.map((obj) => {
               return obj.contract_id;
-            });
+            }); // This map takes the array of object with the key "contract_id" and then the actual contract ID we want and turns it into an array that just has the contract_id integers.
             return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs)
-          })
+          }) // This is searching the database for all contracts that are in the array of contract IDs. (Specifically, a join table with the contract information, the target information, and the client name).
           .then((fullContracts) => {
-            assassinObj.contracts = fullContracts;
+            assassinObj.contracts = fullContracts; // This then pushes the array of returned contracts to the assassinObj. Finally, we render that infromation.
             res.render('../views/assassin.ejs', {
               onMain : false,
               onAssassins : true,
@@ -142,7 +143,7 @@ router.get('/search', (req, res) => {
   }
 });
 
-// For a GET call on /assassins that then includes an ID number. This will bring up an individual assassin's page, including the contracts to which they are assigned.
+// For a GET call on /assassins that then includes an ID number. This brings up the indvidual assassin's page, rendering that assassin's infromation, including any contracts to which they may be assigned, to the individual assassin page (assassin.ejs).
 router.get('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let idRange = [];
