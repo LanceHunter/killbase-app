@@ -141,7 +141,7 @@ router.get('/:id', (req, res) => {
             let assassinIDs = assassinResults.map((obj) => {
               return obj.assassin_id;
             });
-            return knex.select('*').from('assassins').join('code_names', 'assassins.id', 'code_names.assassin_id').whereIn('assassins.id', assassinIDs);
+            return knex.select('*').from('assassins').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id').whereIn('assassins.id', assassinIDs);
           })
           .then((assignedAssassins) => {
             contractObj.assassins = assignedAssassins;
@@ -172,23 +172,21 @@ router.get('/:id', (req, res) => {
 router.post('/assign', (req, res) => {
   let assignmentObj = req.body;
   console.log("Post is happening - ", assignmentObj);
-
-//  if (assignmentObj.assassin_id && assignmentObj.contract_id) {
-//    knex('assassins_contracts').insert({
-//      "assassin_id" : assignmentObj.assassin_id,
-//      "contract_id" : assignmentObj.contract_id
-//    })
-//    .then(() => {
-//      //Sending 200 if it works. Will need to update this to be more relevant later.
-//      res.sendStatus(200);
-//    })
-//    .catch((err) => {
-//      console.error(err);
-//      res.sendStatus(500);
-//    });
-//  } else {
-//    res.sendStatus(400);
-//  }
+  if (assignmentObj.assassinToAssign && assignmentObj.contractAssigned) {
+    knex('assassins_contracts').insert({
+      "assassin_id" : assignmentObj.assassinToAssign,
+      "contract_id" : assignmentObj.contractAssigned
+    })
+    .then(() => {
+      res.send(200);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else {
+    res.sendStatus(400);
+  }
 });
 
 // For POST requests to /contracts - This will take the body of the request and first check to see if the client is in our client list. Then it creates a target, then if the client is not already in our list then it creates a new client. If the client is already in our list then it gets the id for that client. Finally, it create contract for that target and client and sends the JSON for the join table of contract+target.
@@ -372,11 +370,12 @@ router.patch('/:id', (req, res) => {
 
 // For a DELETE request to /contracts/assign - This requires that there be an assassin_id in the body. If there is also a contract_id it then deletes that row from the assassins_contracts table. If there is only an assassin_id, it deletes all contracts assigned to that assassin.
 router.delete('/assign', (req, res) => {
+  console.log(`Here's a delete request`, req.body);
   let assignmentObj = req.body;
-  if (assignmentObj.assassin_id && assignmentObj.contract_id) {
+  if (assignmentObj.assassinID && assignmentObj.contractID) {
     knex('assassins_contracts').where({
-      "assassin_id" : assignmentObj.assassin_id,
-      "contract_id" : assignmentObj.contract_id
+      'assassin_id' : assignmentObj.assassinID,
+      'contract_id' : assignmentObj.contractID
     }).del()
     .then(() => {
       //This sends a 200 status if it works. Will need to update with more detail later.
@@ -386,9 +385,9 @@ router.delete('/assign', (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
-  } else if (assignmentObj.assassin_id) {
+  } else if (assignmentObj.assassinID) {
     knex('assassins_contracts').where({
-      "assassin_id" : assignmentObj.assassin_id
+      'assassin_id' : assignmentObj.assassinID
     }).del()
     .then(() => {
       //This sends a 200 status if it works. Will need to update with more detail later.
