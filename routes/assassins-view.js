@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
   });
 });
 
-// For a GET request to /assassins/search. This checks the body of the request for two things, the query type ("typeSearch" in the request body, becoming the variable "queryType") and the name being searched ("nameSearch" in the request body, becoming the variable "name"). If then performs a search for either the name or the codename of the assassin, using whatever string was entered in the name. If there is a matching assassin, their information is passed back and rendered to the individual assasin page (assassin.ejs).
+// For a GET request to /assassins/search. This checks the body of the request for two things, the query type ("typeSearch" in the request body, becoming the variable "queryType") and the name being searched ("nameSearch" in the request body, becoming the variable "name"). If then performs a search for either the name or the codename of the assassin, using whatever string was entered in the name. All assassins that match have their information passed back and rendered to the multiple assasin page (assassins.ejs).
 router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch;
   let name = req.query.nameSearch;
@@ -46,19 +46,17 @@ router.get('/search', (req, res) => {
     let namesRange = []; // This will hold all of the assassin names.
     knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
     .then((assassinArr) => {
-      console.log(assassinArr);
-      for (let i=0; i<assassinArr.length; i++) {
-        namesRange.push(assassinArr[i].name);
-      } // This grabs all assassin names from the db and puts them into the namesRange array
-    })
-    .then(() => {
-      // We now see if the name provided by the user matches any of the names in the database. For every case where it does, the assasin name is added to the new namesearch array.
+      assassinArr.forEach((assassinName) => {
+        namesRange.push(assassinName.name);
+      }) // This grabs all assassin names from the db and puts them into the namesRange array, stripping them out of the object where they are contaied.
       let matchingNames = [];
+      // We now see if the name provided by the user matches any of the names in the database. For every case where it does, the assasin name is added to the new namesearch array.
       namesRange.forEach((fullName) => {
         if ((name.toUpperCase() === fullName.toUpperCase()) || (fullName.toUpperCase().includes(name.toUpperCase()))) {
           matchingNames.push(fullName);
         }
       })
+      // Then we search for a join table of the assassin + weapon for all the assassins whose names are in the array.
       knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').whereIn('assassins.name', matchingNames)
       .then((result) => {
           res.render('../views/assassins.ejs', {
@@ -68,65 +66,46 @@ router.get('/search', (req, res) => {
             totalAssassins : false,
             assassins : result
           });
-        });
-
-
+        }); // Finally, this is sent to the assassins.ejs page for rendering.
     })
     .catch((err) => {
-      console.error(err);
+      console.error(err); // Of course, if there's a database error, we catch and log it.
       res.sendStatus(500);
     });
   } else {
     //This is basically the same as above, but searching by Code Name instead of Name.
     let codeNamesRange = [];
-    knex.select('code_name').from('code_names')
+    knex.select('*').from('code_names')
     .then((codeNameArr) => {
-      console.log(codeNameArr);
-      for (let i=0; i<codeNameArr.length; i++) {
-        codeNamesRange.push(codeNameArr[i].code_name);
-      }
+      codeNameArr.forEach((codeName) => {
+        codeNamesRange.push(codeName);
+      }); // This grabs all code name entries from the db and puts them into the codeNamesRange array.
+      let matchingNames = [];
+      let usedAssassinIDs = [];
+      // We now see if the name provided by the user matches any of the code names in the database. For every case where it does, the code name is added to the new namesearch array. (Except when the assassinID is the same as a previously-added code name. This prevents duplicate assassin listings.)
+      codeNamesRange.forEach((codeName) => {
+        if (((name.toUpperCase() === codeName.code_name.toUpperCase()) || (codeName.code_name.toUpperCase().includes(name.toUpperCase()))) && (!usedAssassinIDs.includes(codeName.assassin_id))) {
+          matchingNames.push(codeName.code_name);
+          usedAssassinIDs.push(codeName.assassin_id);
+        }
+      })
+      // Then we get a join table of assassins, code names, and weapons for any assassins whose code name matched.
+      return knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').fullOuterJoin('weapons', 'code_names.assassin_id', 'weapons.assassin_id').whereIn('code_names.code_name', matchingNames);
     })
-    .then(() => {
-      if (codeNamesRange.includes(name)) {
-        knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').where('code_names.code_name', name)
-        .then((result) => {
-            assassinObj = result[0];
-            assassinObj.codeNameArr = [];
-            assassinObj.codeNameArr.push({
-              'code_name' : assassinObj.code_name
-            });
-            console.log(assassinObj);
-            return knex.select('weapon_name').from('weapons').where('weapons.assassin_id', assassinObj.id);
-        })
-        .then((weapons) => {
-          assassinObj.weapon_name = weapons[0].weapon_name;
-          return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id);
-        })
-        .then((contract_ids) => {
-          let contractIDs = contract_ids.map((obj) => {
-            return obj.contract_id;
-          });
-          return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs)
-        })
-        .then((fullContracts) => {
-          assassinObj.contracts = fullContracts;
-          res.render('../views/assassin.ejs', {
-            onMain : false,
-            onAssassins : true,
-            onContracts : false,
-            assassins : false,
-            assassinObj : assassinObj
-          });
-        });
-      } else {
-        res.sendStatus(404);
-      }
+    .then((results) => {
+      // Finally all that gets rendered on the multiple assassins page.
+      res.render('../views/assassins.ejs', {
+        onMain : false,
+        onAssassins : true,
+        onContracts : false,
+        totalAssassins : false,
+        assassins : results
+      });
     })
-    .catch((err) => {
+    .catch((err) => { // Once again, if there's a database error, we catch and log it.
       console.error(err);
       res.sendStatus(500);
     });
-
   }
 });
 
