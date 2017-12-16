@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
 
 // For a GET request to the route /contracts/total - This will return a JSON object with key "count" whose value is equal to the total number of contracts.
 router.get('/total', (req, res) => {
-  knex('contracts').countDistinct('id')
+  knex('contracts').countDistinct('contract_set_id')
     .then((result) => {
       res.send(result[0]);
     })

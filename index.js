@@ -29,6 +29,7 @@ app.set('view engine', 'ejs');
 
 // Middleware. Body-Parser and Morgan.
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('short'));
 
 // Getting the assassins & contracts routes running.

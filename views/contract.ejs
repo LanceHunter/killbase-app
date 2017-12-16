@@ -66,23 +66,21 @@
           <p> </p>
           <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Complete</button>
           <p> </p>
-          <form action="/contracts/assign" method="post" class="form">
-            <div class="form-item" name="assassinToAssign">
-              <select id="assassinToAssign">
-                  <% let assassinCheckArr = []; %>
-                  <% contract.totalAssassins.forEach((assassin) => { %>
-                  <% if (!assassinCheckArr.includes(assassin.id)) { %>
-                  <%   if (assassin.name) {  %>
-                      <option value="<%= assassin.id %>"><%= assassin.name %></option>
-                  <%   } else { %>
-                    <option value="<%= assassin.id %>"><%= assassin.code_name %></option>
-                  <%   } %>
-                  <% assassinCheckArr.push(assassin.id); %>
-                  <% } %>
-                  <% }) %>
-              </select>
-              <input type="submit" class="button secondary outline round small" value="Assign Assassin" id=>
-            </div>
+          <form class="form" action="/contracts/assign" method="post">
+            <select name="assassinToAssign" id="assassinToAssign">
+                <% let assassinCheckArr = []; %>
+                <% contract.totalAssassins.forEach((assassin) => { %>
+                <% if (!assassinCheckArr.includes(assassin.id)) { %>
+                <%   if (assassin.name) {  %>
+                    <option value="<%= assassin.id %>"><%= assassin.name %></option>
+                <%   } else { %>
+                  <option value="<%= assassin.id %>"><%= assassin.code_name %></option>
+                <%   } %>
+                <% assassinCheckArr.push(assassin.id); %>
+                <% } %>
+                <% }) %>
+            </select>
+            <button type="submit" class="button secondary outline round small" name="contractAssigned" value="<%= contract.contract_set_id %>" id="assignAssassin">Assign Assassin</button>
           </form>
         </div>
 
