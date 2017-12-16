@@ -14,7 +14,11 @@
       <div class="row gutters align-center">
         <div class="col-8 align-center">
           <div>
+          <% if (!search) { %>
           <h2 class="normal">Active Contracts - <%= contracts.length %></h2>
+          <% } else { %>
+          <h2 class="normal">Matching Contracts - <%= contracts.length %></h2>
+          <% } %>
             <form class="form" action="/contracts/search" method="get">
                 <div class="form-item">
                     <div class="append w60 w100-sm">

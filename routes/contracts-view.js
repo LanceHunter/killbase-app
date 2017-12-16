@@ -19,82 +19,57 @@ const filterInt = function(value) {
 
 // For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts.
 router.get('/', (req, res) => {
-  knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id')
-    .then((result) => {
-      let contractArr = result;
-      console.log(contractArr);
+  knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
+  .then((result) => {
+    res.render('../views/contracts.ejs', { // Then we send that to the multiple contracts page to get rendered.
+      onMain : false,
+      onAssassins : false,
+      onContracts : true,
+      search : false,
+      contracts : result
+    });
+  })
+  .catch((err) => { // If there's a database error, we send a 500 error.
+    console.error(err);
+    res.sendStatus(500);
+  });
+});
+
+// For a GET request to /contracts/search. We first check to see if the target name or the code name is being searched. Then, depending on the search type, the name string provided by the user is searched.
+router.get('/search', (req, res) => {
+  let queryType = req.query.typeSearch; // The string for the type of search performed.
+  let name = req.query.nameSearch; // The string that the user wants searched.
+  let contractObj = {}; // Creating an object to hold our result information that is in the full scope for this request.
+  if (queryType === `Target`) { // This is the logic for searching targets.
+    let namesRange = []; // For holding the names of all targets. We'll compare against this later.
+    knex.select('name').from('targets')
+    .then((nameArr) => {
+      console.log(nameArr);
+      nameArr.forEach((nameObj) => { // This grabs the target names out of their objects and puts their strings into the namesRange array.
+        namesRange.push(nameObj.name);
+      });
+      let matchingNames = []; // An array of any names that match.
+      // We now see if the name provided by the user matches any of the names in the database/namesRange array. For every case where it does, the target name is added to the new namesearch array.
+      namesRange.forEach((fullName) => {
+        if (fullName.toUpperCase().includes(name.toUpperCase())) {
+          matchingNames.push(fullName);
+        }
+      });
+      return knex('targets').fullOuterJoin('contracts', 'targets.id', 'contracts.target_id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('targets.name', matchingNames);
+      // We are now doing a search for all targets whose name is in the array, and joining those results with the corresponding contract and client information.
+    })
+    .then((contracts) => {
+      // Now we send the array of results to the multiple contrats page for rendering.
       res.render('../views/contracts.ejs', {
         onMain : false,
         onAssassins : false,
         onContracts : true,
-        totalAssassins : false,
-        contracts : contractArr
+        search : true,
+        contracts : contracts
       });
     })
     .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
-});
-
-// For a GET request to /contracts/search. The string provided in the request body will be searched.
-router.get('/search', (req, res) => {
-  let queryType = req.query.typeSearch;
-  let name = req.query.nameSearch;
-  let contractObj = {};
-  let totalAssassinArr;
-  if (queryType === `Target`) {
-    console.log("This is the Type - " + queryType);
-    let namesRange = [];
-    knex.select('name').from('targets')
-    .then((nameArr) => {
-      console.log(nameArr);
-      for (let i=0; i<nameArr.length; i++) {
-        namesRange.push(nameArr[i].name);
-      }
-      return;
-    })
-    .then(() => {
-      if (namesRange.includes(name)) {
-        knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
-        .then((assassinTotal) => {
-          totalAssassinArr = assassinTotal;
-          return knex.select('*').from('targets').fullOuterJoin('contracts', 'targets.id', 'contracts.target_id').where('targets.name', name);
-        })
-        .then((result) => {
-            contractObj = result[0];
-            console.log(contractObj);
-            return knex.select('client_name').from('clients').where('id', contractObj.client_id);
-          })
-          .then((client) => {
-            contractObj.client_name = client[0].client_name;
-            console.log(contractObj.client_name);
-            return knex('assassins_contracts').select('assassin_id').where('contract_id', contractObj.contract_set_id);
-          })
-          .then((assassin_ids) => {
-            let assassinIDs = assassin_ids.map((obj) => {
-              return obj.assassin_id;
-            });
-            console.log("The contract object now - ", contractObj.client_name);
-            console.log("The assassin IDs - ", assassinIDs);
-            return knex.select('*').from('assassins').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id').whereIn('assassins.id', assassinIDs)
-          })
-          .then((fullAssassins) => {
-            contractObj.totalAssassins = totalAssassinArr;
-            contractObj.assassins = fullAssassins;
-            res.render('../views/contract.ejs', {
-              onMain : false,
-              onAssassins : false,
-              onContracts : true,
-              assassins : false,
-              contract : contractObj
-            });
-          });
-      } else {
-        res.sendStatus(404);
-      }
-    })
-    .catch((err) => {
+      // If there's a server error, we send a 500.
       console.error(err);
       res.sendStatus(500);
     });

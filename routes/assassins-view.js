@@ -44,7 +44,7 @@ router.get('/search', (req, res) => {
 // Checking to see if the query type is for the "Name". If so, the logic below is performed for searching the assassin's name.
   if (queryType === `Name`) {
     let namesRange = []; // This will hold all of the assassin names.
-    knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
+    knex.select('*').from('assassins')
     .then((assassinArr) => {
       assassinArr.forEach((assassinName) => {
         namesRange.push(assassinName.name);
@@ -52,7 +52,7 @@ router.get('/search', (req, res) => {
       let matchingNames = [];
       // We now see if the name provided by the user matches any of the names in the database. For every case where it does, the assasin name is added to the new namesearch array.
       namesRange.forEach((fullName) => {
-        if ((name.toUpperCase() === fullName.toUpperCase()) || (fullName.toUpperCase().includes(name.toUpperCase()))) {
+        if (fullName.toUpperCase().includes(name.toUpperCase())) {
           matchingNames.push(fullName);
         }
       })
@@ -111,37 +111,35 @@ router.get('/search', (req, res) => {
 
 // For a GET call on /assassins that then includes an ID number. This brings up the indvidual assassin's page, rendering that assassin's infromation, including any contracts to which they may be assigned, to the individual assassin page (assassin.ejs).
 router.get('/:id', (req, res) => {
-  let id = filterInt(req.params.id);
+  let id = filterInt(req.params.id); // Confirming the ID provided is number.
   let idRange = [];
-  let assassinObj = {};
-  if (!isNaN(id)) {
-    knex.select('id').from('assassins')
+  let assassinObj = {}; // This will allow us to get all the information in a single object that is scoped in the full route.
+  if (!isNaN(id)) { // If the id provided is a number, continue on to the actual logic.
+    knex.select('id').from('assassins') // Grabbing all the IDs for our assassins.
     .then((idArr) => {
-      for (let i=0; i<idArr.length; i++) {
-        idRange.push(idArr[i].id);
-      }
-      return;
-    })
-    .then(() => {
-      if (idRange.includes(id)) {
-        knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.id', id)
+      // Now we take the array of returned id objects and pull the IDs out and into our variable showing which ids are in the right range.
+      idArr.forEach((idObj) => {
+          idRange.push(idObj.id);
+      })
+      if (idRange.includes(id)) { // Now we check to see if the provided ID is in the range of current assassin ids.
+        return knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.id', id) // Getting the join table of the assassin in question.
         .then((result) => {
-            assassinObj = result[0];
-            return knex.select('code_name').from('code_names').where('assassin_id', id);
+            assassinObj = result[0]; // Pulling the result out of the array and putting it into the higher-scoped assassinObj variable.
+            return knex.select('code_name').from('code_names').where('assassin_id', id); // Then looking for all code names that match the assassin.
           })
           .then((codeNames) => {
-            assassinObj.codeNameArr = codeNames;
-            return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id);
+            assassinObj.codeNameArr = codeNames; // Then we put that code name results array into assassinObj.
+            return knex('assassins_contracts').select('contract_id').where('assassin_id', assassinObj.id); // Then we search for the contracts to which the assassin is assigned.
           })
           .then((contract_ids) => {
             let contractIDs = contract_ids.map((obj) => {
               return obj.contract_id;
-            });
-            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs)
+            }); // We strip the contract ID out of the resulting object.
+            return knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('contracts.contract_set_id', contractIDs); // Then we get a join table of the contract, target, and client information for all contracts in the array of resulting contracts.
           })
           .then((fullContracts) => {
-            assassinObj.contracts = fullContracts;
-            res.render('../views/assassin.ejs', {
+            assassinObj.contracts = fullContracts; // Then we put that array of joined results into our assassinObj...
+            res.render('../views/assassin.ejs', { // ...and send it to the assassin.ejs page to get rendered.
               onMain : false,
               onAssassins : true,
               onContracts : false,
@@ -149,15 +147,15 @@ router.get('/:id', (req, res) => {
               assassinObj : assassinObj
             });
           });
-      } else {
+      } else { // If the ID provided is a number but isn't in range, we send a 404.
         res.sendStatus(404);
       }
     })
-    .catch((err) => {
+    .catch((err) => { // If there's any database error, give a 404 error.
       console.error(err);
       res.sendStatus(500);
     });
-  } else {
+  } else { // If the id provided wasn't a number, give a 404 error.
     res.sendStatus(404);
   }
 });
