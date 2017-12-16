@@ -39,7 +39,6 @@ router.get('/', (req, res) => {
 router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch; // The string for the type of search performed.
   let name = req.query.nameSearch; // The string that the user wants searched.
-  let contractObj = {}; // Creating an object to hold our result information that is in the full scope for this request.
   if (queryType === `Target`) { // This is the logic for searching targets.
     let namesRange = []; // For holding the names of all targets. We'll compare against this later.
     knex.select('name').from('targets')
@@ -75,57 +74,31 @@ router.get('/search', (req, res) => {
     });
   } else {
     //This is basically the same as above, but searching by Client Name instead of Name.
-    let codeNamesRange = [];
+    let clientNameRange = []; // A fully-scoped array to be filled with client names.
     knex.select('client_name').from('clients')
+    // Grabbing all the client names.
     .then((clientNameArr) => {
-      console.log(clientNameArr);
-      for (let i=0; i<clientNameArr.length; i++) {
-        codeNamesRange.push(clientNameArr[i].client_name);
-      }
+      clientNameArr.forEach((client) => {
+        clientNameRange.push(client.client_name);
+      }); // Pulling out the client name strings from the array of object results.
+      let matchingNames = []; // An array to be used for any client names that match.
+      // We now see if the name provided by the user matches any of the names in the database/clientNameRange array. For every case where it does, the target name is added to the new namesearch array.
+      clientNameRange.forEach((fullName) => {
+        if (fullName.toUpperCase().includes(name.toUpperCase())) {
+          matchingNames.push(fullName);
+        }
+      });
+      return knex('clients').fullOuterJoin('contracts', 'clients.id', 'contracts.client_id').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').whereIn('clients.client_name', matchingNames)
     })
-    .then(() => {
-      if (codeNamesRange.includes(name)) {
-        knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
-        .then((assassinTotal) => {
-          totalAssassinArr = assassinTotal;
-          return knex.select('*').from('clients').fullOuterJoin('contracts', 'clients.id', 'contracts.client_id').where('clients.client_name', name);
-        })
-        .then((result) => {
-            contractObj = result[0];
-            console.log(contractObj);
-            return knex.select('*').from('targets').where('id', contractObj.target_id);
-          })
-          .then((target) => {
-            contractObj.name = target[0].name;
-            contractObj.location = target[0].location;
-            contractObj.photo_url = target[0].photo_url;
-            contractObj.security_level = target[0].security_level;
-            contractObj.alive = target[0].alive;
-            console.log('Do I have the full target in contract? - ', contractObj);
-            return knex('assassins_contracts').select('assassin_id').where('contract_id', contractObj.contract_set_id);
-          })
-          .then((assassin_ids) => {
-            let assassinIDs = assassin_ids.map((obj) => {
-              return obj.assassin_id;
-            });
-            console.log("The contract object now - ", contractObj.client_name);
-            console.log("The assassin IDs - ", assassinIDs);
-            return knex.select('*').from('assassins').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id').whereIn('assassins.id', assassinIDs)
-          })
-          .then((fullAssassins) => {
-            contractObj.totalAssassins = totalAssassinArr;
-            contractObj.assassins = fullAssassins;
-            res.render('../views/contract.ejs', {
-              onMain : false,
-              onAssassins : false,
-              onContracts : true,
-              assassins : false,
-              contract : contractObj
-            });
-          });
-      } else {
-        res.sendStatus(404);
-      }
+    .then((contracts) => {
+      console.log(contracts);
+      res.render('../views/contracts.ejs', {
+        onMain : false,
+        onAssassins : false,
+        onContracts : true,
+        search : true,
+        contracts : contracts
+      });
     })
     .catch((err) => {
       console.error(err);
