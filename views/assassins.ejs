@@ -14,7 +14,11 @@
       <div class="row gutters align-center">
         <div class="col-8 align-center">
           <div>
+          <% if (totalAssassins) { %>
           <h2 class="normal">Active Assassins - <%= assassins.length %></h2>
+          <% } else { %>
+          <h2 class="normal">Matching Assassins - <%= assassins.length %></h2>
+          <% } %>
             <form class="form" action="/assassins/search" method="get">
                 <div class="form-item">
                     <div class="append w60 w100-sm">
