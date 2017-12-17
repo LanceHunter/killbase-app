@@ -19,18 +19,7 @@
           <% } else { %>
           <h2 class="normal">Matching Contracts - <%= contracts.length %></h2>
           <% } %>
-            <form class="form" action="/contracts/search" method="get">
-                <div class="form-item">
-                    <div class="append w60 w100-sm">
-                      <input type="text secondary" class="small" id="seach" name="nameSearch">
-                      <button class="button small secondary outline"><i class="kube-search"></i></button>
-                      <select class="small w30" name="typeSearch" id="searchOptions">
-                          <option>Target</option>
-                          <option>Client</option>
-                      </select>
-                    </div>
-                </div>
-            </form>
+          <% include ./partials/searchBar.ejs %>
           </div>
           <% contracts.forEach((contract) => { %>
             <%   include ./partials/contractframe.ejs %>

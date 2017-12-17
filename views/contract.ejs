@@ -12,22 +12,13 @@
 
     <main>
       <div class="row gutters align-center">
-        <div class="col-8 align-center">
-          <div>
-            <form class="form" action="/contracts/search" method="get">
-                <div class="form-item">
-                    <div class="append w60 w100-sm">
-                      <input type="text secondary" class="small" id="seach" name="nameSearch">
-                      <button class="button small secondary outline"><i class="kube-search"></i></button>
-                      <select class="small w30" name="typeSearch" id="searchOptions">
-                          <option>Target</option>
-                          <option>Client</option>
-                      </select>
-                    </div>
-                </div>
-            </form>
-            <h2 class="normal"><%= contract.name %></h2>
-          </div>
+        <div class="col-10">
+          <% include ./partials/searchBar.ejs %>
+        </div>
+      </div>
+      <div class="row gutters align-center">
+        <div class="col-10">
+          <h2 class="normal"><%= contract.name %></h2>
         </div>
       </div>
       <div class="row gutters align-center">
@@ -72,9 +63,9 @@
                 <% contract.totalAssassins.forEach((assassin) => { %>
                 <% if (!assassinCheckArr.includes(assassin.id)) { %>
                 <%   if (assassin.name) {  %>
-                    <option value="<%= assassin.id %>"><%= assassin.name %></option>
+                    <option value="<%= assassin.id %>" id="selectValue<%= assassin.id %>"><%= assassin.name %></option>
                 <%   } else { %>
-                  <option value="<%= assassin.id %>"><%= assassin.code_name %></option>
+                  <option value="<%= assassin.id %>" id="selectValue<%= assassin.id %>"><%= assassin.code_name %></option>
                 <%   } %>
                 <% assassinCheckArr.push(assassin.id); %>
                 <% } %>
