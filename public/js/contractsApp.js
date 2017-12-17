@@ -25,10 +25,10 @@
       method : 'DELETE',
       statusCode: {
           404: function() {
-            alert('The page was not found');
+            window.alert('The page was not found');
           },
           500: function() {
-            alert('There was a server error');
+            window.alert('There was a server error');
           }
         },
       data: {
@@ -40,7 +40,6 @@
       console.log(replytext);
       $(`#${targetID}`).parent().parent().remove();
     });
-
   });
 
 })();

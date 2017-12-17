@@ -17,7 +17,7 @@ const filterInt = function(value) {
   return NaN;
 };
 
-// For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts.
+// For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts. THIS IS COMPLETE.
 router.get('/', (req, res) => {
   knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
   .then((result) => {
@@ -35,7 +35,7 @@ router.get('/', (req, res) => {
   });
 });
 
-// For a GET request to /contracts/search. We first check to see if the target name or the code name is being searched. Then, depending on the search type, the name string provided by the user is searched.
+// For a GET request to /contracts/search. We first check to see if the target name or the code name is being searched. Then, depending on the search type, the name string provided by the user is searched. THIS IS COMPLETE.
 router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch; // The string for the type of search performed.
   let name = req.query.nameSearch; // The string that the user wants searched.
@@ -168,7 +168,7 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// For a POST request to /contracts/assign - This requires that there be an assassin_id and a contact_id in the body. It assigns a contract to an assassin.
+// For a POST request to /contracts/assign - This requires that there be an assassin_id and a contact_id in the body. It assigns a contract to an assassin. THIS IS COMPLETE.
 router.post('/assign', (req, res) => {
   let assignmentObj = req.body;
   console.log("Post is happening - ", assignmentObj);
