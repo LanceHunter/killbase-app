@@ -57,7 +57,7 @@
           <p> </p>
           <button class="button secondary round small" id="delete<%= contract.contract_set_id %>">Complete</button>
           <p> </p>
-          <form class="form" action="/contracts/assign" method="post">
+          <form class="form" method="">
             <select name="assassinToAssign" id="assassinToAssign">
                 <% let assassinCheckArr = []; %>
                 <% contract.totalAssassins.forEach((assassin) => { %>

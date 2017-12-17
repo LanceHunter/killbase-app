@@ -178,7 +178,7 @@ router.post('/assign', (req, res) => {
       "contract_id" : assignmentObj.contractAssigned
     })
     .then(() => {
-      res.send(200);
+      res.sendStatus(200);
     })
     .catch((err) => {
       console.error(err);
