@@ -314,12 +314,14 @@ router.patch('/:id', (req, res) => {
   }
 });
 
-
-// For DELETE requests to /assassins - This requires an id to be provided that is an integer matching the id of an existing assassin. If the id doesn't meet that criteria a 404 is returned. If it does, the assassin whose id matches the one provided is deleted from the database. All of their code names and preferred weapons are deleted as well.
+// For DELETE requests to /assassins - This requires an id to be provided that is an integer matching the id of an existing assassin. If the id doesn't meet that criteria a 404 is returned. If it does, the assassin whose id matches the one provided is deleted from the database. All of their assignments, code names, and preferred weapons are deleted as well.
 router.delete('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   if (!isNaN(id)) {
-    knex('code_names').where('assassin_id',id).del()
+    knex('assassins_contracts').where('assassin_id',id).del()
+    .then(() => {
+    return knex('code_names').where('assassin_id',id).del()
+    })
     .then(() => {
       return knex('weapons').where('assassin_id',id).del();
     })

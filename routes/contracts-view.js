@@ -19,7 +19,7 @@ const filterInt = function(value) {
 
 // For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts. THIS IS COMPLETE.
 router.get('/', (req, res) => {
-  knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
+  knex.select('*').from('contracts').join('targets', 'contracts.target_id', 'targets.id').join('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
   .then((result) => {
     res.render('../views/contracts.ejs', { // Then we send that to the multiple contracts page to get rendered.
       onMain : false,
@@ -407,18 +407,19 @@ router.delete('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let idRange = [];
   if (!isNaN(id)) {
-    knex.select('id').from('contracts')
+    knex.select('contract_set_id').from('contracts')
       .then((idArr) => {
-        for (let i = 0; i < idArr.length; i++) {
-          idRange.push(idArr[i].id);
-        }
-      })
-      .then(() => {
+        idArr.forEach((idObj) => {
+          idRange.push(idObj.contract_set_id);
+        })
         if (idRange.includes(id)) {
-          knex('contracts').where('id', id).del()
-            .then((result) => {
-              res.sendStatus(200);
-            })
+          knex('assassins_contracts').where('contract_id', id).del()
+          .then(() => {
+            return knex('contracts').where('contract_set_id', id).del();
+          })
+          .then((result) => {
+            res.sendStatus(200);
+          })
         } else {
           res.sendStatus(404);
         }
