@@ -39,7 +39,7 @@ router.get('/', (req, res) => {
 router.get('/add/', (req, res) => {
   knex('clients').select('client_name') // Getting all client names.
   .then((clients) => {
-    let clientNames = clients.map((client) => { // Putting those client names into an array so it's just the names and not an object with the names as a value.
+      let clientNames = clients.map((client) => { // Putting those client names into an array so it's just the names and not an object with the names as a value.
       return client.client_name;
     });
     res.render('../views/addcontract.ejs', { // Sending off to the add contract page to render.
@@ -124,6 +124,54 @@ router.get('/search', (req, res) => {
     });
   }
 });
+
+// For a GET request to the route /contracts/edit/ that includes an id. - This will bring up the contract edit page, filled in with the infromation included in contract.
+router.get('/edit/:id', (req, res) => {
+  let idRange = [];
+  let id = filterInt(req.params.id);
+  if (!isNaN(id)) {
+    let contractObj;
+    let totalAssassinArr;
+    knex.select('contract_set_id').from('contracts')
+      .then((idArr) => {
+        idArr.forEach((inResult) => {
+          idRange.push(inResult.contract_set_id);
+        });
+        if (idRange.includes(id)) {
+          knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').where('contracts.contract_set_id',id)
+          .then((result) => {
+            contractObj = result[0];
+            return knex('clients').select('client_name');
+          })
+          .then((clients) => {
+            console.log(clients);
+            let clientNames = clients.map((client) => { // Putting those client names into an array so it's just the names and not an object with the names as a value.
+              return client.client_name;
+            });
+            contractObj.clients = clientNames;
+            console.log(clientNames);
+            res.render('../views/editcontract.ejs', {
+              onMain : false,
+              onAssassins : false,
+              onContracts : true,
+              assassins : false,
+              contract : contractObj
+            });
+          });
+        } else {
+          res.sendStatus(404);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
+  } else {
+    console.log(`This isn't a number`)
+    res.sendStatus(404);
+  }
+});
+
 
 // For a GET request to the route /contracts that includes an id. - This will return the contract page with target, client, and assigned assassins.
 router.get('/:id', (req, res) => {

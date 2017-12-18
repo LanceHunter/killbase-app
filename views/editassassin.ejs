@@ -33,7 +33,7 @@
           <div class="col-7 form-item" id="codeNameDiv">
             <label>Codename(s) - 1 per line</label>
             <div class="append w90" id="codeNameLines">
-              <input type="text" name="codeName" class="codeNames" id="anotherCodeName">
+              <input type="text" name="codeName" class="codeNames" id="anotherCodeName0">
               <button class="button small secondary outline" id="addCodeName">+</button>
             </div>
           </div>
@@ -41,12 +41,12 @@
             <div class="col-7 form-item" id="codeNameDiv">
               <label>Codename(s) - 1 per line</label>
               <div class="append w90" id="codeNameLines">
-                <input type="text" name="codeName" class="codeNames" id="anotherCodeName" value="<%= assassinObj.codeNameArr[0]  %>">
+                <input type="text" name="codeName" class="codeNames" id="anotherCodeName0" value="<%= assassinObj.codeNameArr[0]  %>">
                 <button class="button small secondary outline" id="addCodeName">+</button>
               </div>
               <% for (let i=1; i<assassinObj.codeNameArr.length; i++) { %>
                 <div class="w90" id="codeNameLines">
-                  <input type="text codeName" name="codeName" class="codeNames" id="anotherCodeName" value="<%= assassinObj.codeNameArr[i]  %>">
+                  <input type="text codeName" name="codeName" class="codeNames" id="anotherCodeName<%= i %>" value="<%= assassinObj.codeNameArr[i]  %>">
                 </div>
               <% } %>
             </div>

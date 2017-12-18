@@ -1,6 +1,7 @@
 (function() {
   console.log("You see me!");
-  let codeNameFieldTotal = 1;
+  let codeNameFields = $('.codeNames');
+  let codeNameFieldTotal = codeNameFields.length-1;
 
 
   $('.delete').click(() => {
@@ -61,7 +62,7 @@
     event.preventDefault();
     codeNameFieldTotal++;
     let codeNameField = `<div class="w90" id="codeNameLines">
-                  <input type="text" name="codeName">
+                  <input type="text" name="codeName" class="codeNames" id="anotherCodeName${codeNameFieldTotal}">
                         </div>`;
     $('#codeNameDiv').append(codeNameField);
   });
@@ -113,7 +114,12 @@
   let newName = '';
   let oldAge = $('#editAge').val();
   let newAge = '';
-//  let oldCodeNames = $('.codeNames').val();
+  let oldCodeNames = $('.codeNames');
+  let oldCodeNamesArr = [];
+  for (let i=0; i<oldCodeNames.length; i++) {
+    oldCodeNamesArr.push($(`#${oldCodeNames[i].id}`).val());
+    console.log($(`#${oldCodeNames[i].id}`).val());
+  }
   let oldPrice = $('#editPrice').val();
   let newPrice = '';
   let oldPhoto = $('#editPhoto_url').val();
@@ -160,6 +166,16 @@
     $(`#updateTheAssassin`).replaceWith(`<button class="button round secondary outline large align-center" role="button" id="confirmUpdateAssassin">Confirm Update</button>`);
     $('#confirmUpdateAssassin').click(() => {
       event.preventDefault();
+      let newCodeNames = $('.codeNames');
+      console.log(newCodeNames.length);
+      let newCodeNamesArr = [];
+      for (let i=0; i<newCodeNames.length; i++) {
+        if ($(`#${newCodeNames[i].id}`).val()) {
+          newCodeNamesArr.push($(`#${newCodeNames[i].id}`).val());
+          console.log($(`#${newCodeNames[i].id}`).val());
+        }
+      }
+      updateData.codeNameArr = newCodeNamesArr;
       if (newName && (newName.trim() !== oldName)) {
         updateData.name = newName.trim();
       }
@@ -188,6 +204,9 @@
         url: `/assassins/edit/${assassinID}`,
         method : 'PATCH',
         statusCode: {
+            200: function() {
+              window.location.assign(`/assassins/${assassinID}`);
+            },
             404: function() {
               window.alert('The page was not found');
             },

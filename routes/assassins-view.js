@@ -296,93 +296,145 @@ router.post('/add', (req, res) => {
 router.patch('/edit/:id', (req, res) => {
   let id = filterInt(req.params.id); // Making sure the id ia a number
   let assassinObj = req.body; // Taking the JSON and putting it in the body
-  console.log(assassinObj);
+  console.log(assassinObj.codeNameArr);
   let idRange = [];
   if (!isNaN(id)) {
     knex.select('id').from('assassins')
     .then((idArr) => {
-      for (let i=0; i<idArr.length; i++) {
-        idRange.push(idArr[i].id);
-      }
+      idArr.forEach((idEntry) => {
+        idRange.push(idEntry.id);
+      });
     })
     .then(() => {
       if (idRange.includes(id)) {
         if (assassinObj.name) {
           console.log('Name found - ', assassinObj.name);
-          knex('assassins').where('id',id).update({
+          return knex('assassins').where('id',id).update({
             'name' : assassinObj.name
-          })
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
           });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
         }
-        if (assassinObj.contact_info) {
-          console.log('Contact info found');
-          knex('assassins').where('id',id).update({
-            'contact_info' : assassinObj.contact_info
-          })
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
-          });
-        }
-        if (assassinObj.age) {
-          console.log('Age found');
-          knex('assassins').where('id',id).update({
-            'age' : assassinObj.age
-          })
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
-          });
-        }
-        if (assassinObj.price) {
-          console.log('Price found');
-          knex('assassins').where('id',id).update({
-            'price' : assassinObj.price
-          }).returning('price')
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
-          });
-        }
-        if (assassinObj.kills) {
-          console.log('Kills found');
-          knex('assassins').where('id',id).update({
-            'kills' : assassinObj.kills
-          })
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
-          });
-        }
-        if (assassinObj.rating) {
-          console.log('Rating found');
-          knex('assassins').where('id',id).update({
-            'rating' : filterInt(assassinObj.rating)
-          })
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
-          });
-        }
-        if (assassinObj.weapon) {
-          console.log('Weapons found');
-          knex('weapons').where('assassin_id', id).update({
-            'weapon_name' : assassinObj.weapon
-          })
-          .catch((err) => {
-            console.error(err);
-            res.sendStatus(500);
-          });
-        }
-      } else {
-        res.sendStatus(404);
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
       }
     })
     .then(() => {
-      res.send(assassinObj);
+      if (idRange.includes(id)) {
+        if (assassinObj.contact_info) {
+          console.log('contact_info found - ', assassinObj.contact_info);
+          return knex('assassins').where('id',id).update({
+            'contact_info' : assassinObj.contact_info
+          });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.age) {
+          console.log('age found - ', assassinObj.age);
+          return knex('assassins').where('id',id).update({
+            'age' : assassinObj.age
+          });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.price) {
+          console.log('price found - ', assassinObj.price);
+          return knex('assassins').where('id',id).update({
+            'price' : assassinObj.price
+          });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.kills) {
+          console.log('kills found - ', assassinObj.kills);
+          return knex('assassins').where('id',id).update({
+            'kills' : assassinObj.kills
+          });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.rating) {
+          console.log('rating found - ', assassinObj.rating);
+          return knex('assassins').where('id',id).update({
+            'rating' : assassinObj.rating
+          });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.weapon) {
+          console.log('weapon found - ', assassinObj.weapon);
+          return knex('weapons').where('assassin_id',id).update({
+            'weapon' : assassinObj.weapon
+          });
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.codeNameArr.length !== 0) {
+          return knex('code_names').where('assassin_id', id).del();
+        } else { // Moving on to next part of promise if the array is empty wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        if (assassinObj.codeNameArr.length !== 0) {
+          let codeNameEntries = assassinObj.codeNameArr.map((theName) => {
+            return { 'assassin_id' : id,
+                     'code_name' : theName };
+          });
+          return knex('code_names').insert(codeNameEntries);
+        } else { // Moving on to next part of promise if the name wasn't in the body.
+          return;
+        }
+      } else { // Moving on to the next part of the promise if the id isn't in range.
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+          res.send(assassinObj);
+        } else {
+          res.sendStatus(404);;
+      }
     })
     .catch((err) => {
       console.error(err);
