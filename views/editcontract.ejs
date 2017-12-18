@@ -17,7 +17,7 @@
           <h2 class="normal">Update Contract</h2>
         </div>
       </div>
-      <form method="post" action="/contracts/add" class="form">
+      <form class="form">
         <div class="row gutters align-center">
           <div class="col-7 form-item">
             <label>Target Name <span class="req">*</span></label>
@@ -29,7 +29,7 @@
           </div>
         </div>
         <div class="row gutters align-center">
-          <div class="col-7 form-item" id="codeNameDiv">
+          <div class="col-7 form-item">
             <label>Target Location <span class="req">*</span></label>
             <input type="text" class="w90" name="location" id="location" value="<%= contract.location %>">
           </div>
@@ -57,7 +57,7 @@
             </select>
           </div>
           <div class="col-3 push-bottom">
-            <button class="button round secondary align-center large" role="button" id="addTheContract">Update Contract</button>
+            <button class="button round secondary align-center large" role="button" value="<%= contract.contract_set_id %>" id="updateTheContract">Update Contract</button>
           </div>
         </div>
       </form>

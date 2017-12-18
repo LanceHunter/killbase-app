@@ -326,122 +326,126 @@ router.post('/add/', (req, res) => {
 });
 
 
-// For PATCH requests to /contracts/targets - This will need to include an id in the path and the information to be updated in the body of the request.
-router.patch('/targets/:id', (req, res) => {
-  let id = filterInt(req.params.id);
-  let targetObj = req.body;
-  let idRange = [];
-  if (!isNaN(id)) {
-    knex.select('id').from('targets')
-      .then((idArr) => {
-        for (let i = 0; i < idArr.length; i++) {
-          idRange.push(idArr[i].id);
-        }
-      })
-      .then(() => {
-        if (idRange.includes(id)) {
-          if (targetObj.name) {
-            console.log('Name change');
-            knex('targets').where('id',id).update({
-              "name" : targetObj.name
-            })
-            .catch((err) => {
-              console.error('Name error - ' + err);
-              res.sendStatus(500);
-            })
-          }
-          if (targetObj.location) {
-            console.log('Location change');
-            knex('targets').where('id',id).update({
-              "location" : targetObj.location
-            })
-            .catch((err) => {
-              console.error('Location error - ' + err);
-              res.sendStatus(500);
-            })
-          }
-          if (targetObj.photo_url) {
-            console.log('Photo URL change');
-            knex('targets').where('id',id).update({
-              "photo_url" : targetObj.photo_url
-            })
-            .catch((err) => {
-              console.error('Photo URL error - ' + err);
-              res.sendStatus(500);
-            })
-          }
-          if (targetObj.security_level) {
-            console.log('Security level change');
-            knex('targets').where('id',id).update({
-              "security_level" : targetObj.security_level
-            })
-            .catch((err) => {
-              console.error('security level error - ' + err);
-              res.sendStatus(500);
-            })
-          }
-          res.send(targetObj);
-        } else {
-          res.sendStatus(404);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(500);
-      });
-  } else {
-    res.sendStatus(404);
-  }
-});
-
-// For PATCH requests to /contracts - This will need to include an id in the path and the information to be updated in the body of the request. If the ID doesn't match any current contract ids, a 404 is sent. This currently expects that any attempts to update the contract to completed will also include the id of the assassin that completed it. It will also change the target "alive" value to false if a contract is completed. The only other updates allowed currently are to the budget.
-router.patch('/:id', (req, res) => {
+// For PATCH requests to /contracts/edit/ followed by an ID number - This will udpate the contract infromation based on the information.
+router.patch('/edit/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let contractObj = req.body;
   let idRange = [];
   if (!isNaN(id)) {
-    knex.select('id').from('contracts')
+    knex.select('contract_set_id').from('contracts')
       .then((idArr) => {
-        for (let i = 0; i < idArr.length; i++) {
-          idRange.push(idArr[i].id);
+        idRange = idArr.map((soloID) => {
+          return soloID.contract_set_id;
+        });
+        console.log('The ID range is - ', idRange);
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (contractObj.budget) {
+            return knex('contracts').where('contract_set_id', id).update({
+              'budget' : contractObj.budget
+            });
+          } else { // Returning if there is no budget change included.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
         }
       })
       .then(() => {
         if (idRange.includes(id)) {
-          if (contractObj.completed) {
-            console.log('Contract completed');
-            knex('contracts').where('id',id).update({
-              "completed" : contractObj.completed,
-              "completed_by" : contractObj.completed_by
-            }).returning('target_id')
-            .then((target_id) => {
-              console.log(target_id);
-              return knex('targets').where('id',target_id[0]).update({
-                "alive" : !contractObj.completed
-              })
-            })
-            .then(() => {
-              res.sendStatus(200);
-            })
-          }
-          if (contractObj.budget) {
-            console.log('Budget updated');
-            knex('contracts').where('id',id).update({
-              "budget" : contractObj.budget
-            })
-            .then(() => {
-              res.sendStatus(200);
-            })
-          }
-        } else {
-          res.sendStatus(404);
+          return knex('contracts').select('target_id').where('contract_set_id', id);
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
         }
+      })
+      .then((targetIDArr) => {
+        if (idRange.includes(id)) {
+          contractObj.target_id = targetIDArr[0].target_id; //Saving the ID lookups.
+          if (contractObj.targetName) {
+            return knex('targets').where('id', contractObj.target_id).update({
+              'name' : contractObj.targetName
+            });
+          } else { // Returning blank if no name was provided.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
+        }
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (contractObj.secLevel) {
+            return knex('targets').where('id', contractObj.target_id).update({
+              'security_level' : contractObj.secLevel
+            });
+          } else { // Returning blank if no security level was provided.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
+        }
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (contractObj.location) {
+            return knex('targets').where('id', contractObj.target_id).update({
+              'location' : contractObj.location
+            });
+          } else { // Returning blank if no security level was provided.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
+        }
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (contractObj.photo_url) {
+            return knex('targets').where('id', contractObj.target_id).update({
+              'photo_url' : contractObj.photo_url
+            });
+          } else { // Returning blank if no photo url was provided.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
+        }
+      })
+      .then(() => {
+        if (idRange.includes(id)) {
+          if (contractObj.client_name) {
+            return knex('clients').select('id').where('client_name', contractObj.client_name);
+          } else { // Returning blank if no client name was provided.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
+        }
+      })
+      .then((clientID) => {
+        if (idRange.includes(id)) {
+          if (contractObj.client_name) {
+            contractObj.client_id = clientID[0].id;
+            return knex('contracts').where('contract_set_id', id).update({
+              'client_id' : contractObj.client_id
+            });
+          } else { // Returning blank if no client name was provided.
+            return;
+          }
+        } else { // Returning blank if ID isn't in the contract range.
+          return;
+        }
+      })
+      .then(() => {
+        res.send(contractObj);
       })
       .catch((err) => {
         console.error(err);
         res.sendStatus(500);
       });
   } else {
+    console.log(`We don't think the request is a number.`)
     res.sendStatus(404);
   }
 });
