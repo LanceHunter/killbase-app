@@ -21,11 +21,11 @@
         <div class="row gutters align-center">
           <div class="col-7 form-item">
             <label>Name <span class="req">*</span></label>
-            <input type="text" name="name" class="w90" id="name" value="<%= assassinObj.name %>">
+            <input type="text" name="name" class="w90" id="editName" value="<%= assassinObj.name %>">
           </div>
           <div class="col-3 form-item">
             <label>Age <span class="req">*</span></label>
-            <input type="number" name="age" class="w30" id="age" value="<%= assassinObj.age %>">
+            <input type="number" name="age" class="w30" id="editAge" value="<%= assassinObj.age %>">
           </div>
         </div>
         <div class="row gutters align-center">
@@ -33,7 +33,7 @@
           <div class="col-7 form-item" id="codeNameDiv">
             <label>Codename(s) - 1 per line</label>
             <div class="append w90" id="codeNameLines">
-              <input type="text" name="codeName" id="anotherCodeName">
+              <input type="text" name="codeName" class="codeNames" id="anotherCodeName">
               <button class="button small secondary outline" id="addCodeName">+</button>
             </div>
           </div>
@@ -41,49 +41,49 @@
             <div class="col-7 form-item" id="codeNameDiv">
               <label>Codename(s) - 1 per line</label>
               <div class="append w90" id="codeNameLines">
-                <input type="text" name="codeName" id="anotherCodeName" value="<%= assassinObj.codeNameArr[0]  %>">
+                <input type="text" name="codeName" class="codeNames" id="anotherCodeName" value="<%= assassinObj.codeNameArr[0]  %>">
                 <button class="button small secondary outline" id="addCodeName">+</button>
               </div>
               <% for (let i=1; i<assassinObj.codeNameArr.length; i++) { %>
                 <div class="w90" id="codeNameLines">
-                  <input type="text" name="codeName" id="anotherCodeName" value="<%= assassinObj.codeNameArr[i]  %>">
+                  <input type="text codeName" name="codeName" class="codeNames" id="anotherCodeName" value="<%= assassinObj.codeNameArr[i]  %>">
                 </div>
               <% } %>
             </div>
           <% } %>
           <div class="col-3 form-item">
             <label>Price <span class="req">*</span></label>
-            <input type="number" name="price" class="w30" id="price" value="<%= assassinObj.price %>">
+            <input type="number" name="price" class="w30" id="editPrice" value="<%= assassinObj.price %>">
           </div>
         </div>
 
         <div class="row gutters align-center">
           <div class="col-7 form-item">
             <label>Profile Image URL</label>
-            <input type="url" name="photo_url" class="w90" id="photo_url" value="<%= assassinObj.photo_url %>">
+            <input type="url" name="photo_url" class="w90" id="editPhoto_url" value="<%= assassinObj.photo_url %>">
           </div>
           <div class="col-3 form-item">
             <label>Rating <span class="req">*</span></label>
-            <input type="number" name="rating" class="w30" min="1" max="10" id="rating" value="<%= assassinObj.rating %>">
+            <input type="number" name="rating" class="w30" min="1" max="10" id="editRating" value="<%= assassinObj.rating %>">
           </div>
         </div>
         <div class="row gutters align-center">
           <div class="col-7 form-item">
             <label>Weapon of Choice <span class="req">*</span></label>
-            <input type="text" name="weapon" class="w90" id="weapon" value="<%= assassinObj.weapon_name %>">
+            <input type="text" name="weapon" class="w90" id="editWeapon" value="<%= assassinObj.weapon_name %>">
           </div>
           <div class="col-3 form-item">
             <label>Kills <span class="req">*</span></label>
-            <input type="number" name="kills" class="w30" id="kills" value="<%= assassinObj.kills %>">
+            <input type="number" name="kills" class="w30" id="editKills" value="<%= assassinObj.kills %>">
           </div>
         </div>
         <div class="row gutters align-center">
           <div class="col-7 form-item">
             <label>Contact Email <span class="req" id="contactReq">*</span></label>
-            <input type="email" name="contactInfo" class="w90" id="contact" value="<%= assassinObj.contact_info %>">
+            <input type="email" name="contactInfo" class="w90" id="editContact" value="<%= assassinObj.contact_info %>">
           </div>
           <div class="col-3 push-bottom">
-            <button class="button round secondary align-center large" role="button" id="updateTheAssassin">Update <%= assassinObj.name %></button>
+            <button class="button round secondary align-center large" role="button" value="<%= assassinObj.assassin_id %>" id="updateTheAssassin">Update <%= assassinObj.name %></button>
           </div>
         </div>
       </form>

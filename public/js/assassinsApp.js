@@ -2,7 +2,6 @@
   console.log("You see me!");
   let codeNameFieldTotal = 1;
 
-  
 
   $('.delete').click(() => {
     let clickedButtonID = event.target.id;
@@ -67,6 +66,8 @@
     $('#codeNameDiv').append(codeNameField);
   });
 
+  //This is the code for adding an assassin.
+
   $('#addTheAssassin').click(() => {
     event.preventDefault();
     let emailReg = /^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$/;
@@ -104,8 +105,60 @@
         $('#contact').addClass('error');
       }
     }
-
   });
+
+// This is the code for editing assassins.
+
+  let oldName = $('#editName').val();
+  let newName = '';
+  let oldAge = $('#editAge').val();
+  let newAge = '';
+//  let oldCodeNames = $('.codeNames').val();
+  let oldPrice = $('#editPrice').val();
+  let newPrice = '';
+  let oldPhoto = $('#editPhoto_url').val();
+  let newPhoto = '';
+  let oldRating = $('#editRating').val();
+  let newRating = '';
+  let oldWeapon = $('#editWeapon').val();
+  let newWeapon = '';
+  let oldKills = $('#editKills').val();
+  let newKills = '';
+  let oldContact = $('#editContact').val();
+  let newContact = '';
+
+  // The event listeners for input changing in all the fields.
+  $('#editName').on('input', () => {
+    newName = $('#editName').val();
+  });
+  $('#editAge').on('input', () => {
+    newAge = $('#editAge').val();
+  });
+  $('#editPrice').on('input', () => {
+    newPrice = $('#editPrice').val();
+  });
+  $('#editPhoto_url').on('input', () => {
+    newPhoto = $('#editPhoto_url').val();
+  });
+  $('#editRating').on('input', () => {
+    newRating = $('#editRating').val();
+  });
+  $('#editWeapon').on('input', () => {
+    newWeapon = $('#editWeapon').val();
+  });
+  $('#editKills').on('input', () => {
+    newKills = $('#editKills').val();
+  });
+  $('#editContact').on('input', () => {
+    newContact = $('#editContact').val();
+  });
+
+  $('#updateTheAssassin').click(() => {
+    let updateData = {};
+    let assassinID = $('#updateTheAssassin').val()
+    console.log("CLicked assassin id = ", assassinID);
+    event.preventDefault();
+  })
 
 
 })();

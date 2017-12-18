@@ -293,7 +293,7 @@ router.post('/add', (req, res) => {
 
 
 // For PATCH requests to /assassins/ followed by a numberic id and a json body. - This will require an id number matching the id of an existing assassin. If the id is not a number or does not match an existing assassin, a 404 is returned. Otherwise, the information in the body is changed for the assassin whose id was entered.
-router.patch('/:id', (req, res) => {
+router.patch('/edit/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let assassinObj = req.body;
   console.log(assassinObj);
