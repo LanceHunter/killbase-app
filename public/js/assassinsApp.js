@@ -1,5 +1,6 @@
 (function() {
   console.log("You see me!");
+  let codeNameFieldTotal = 1;
 
   $('.delete').click(() => {
     let clickedButtonID = event.target.id;
@@ -53,6 +54,54 @@
     });
   });
 
+  $('#addCodeName').click(() => {
+    event.preventDefault();
+    codeNameFieldTotal++;
+    let codeNameField = `<div class="w90" id="codeNameLines">
+                  <input type="text" name="codeName">
+                        </div>`;
+    $('#codeNameDiv').append(codeNameField);
+  });
+
+  $('#addTheAssassin').click(() => {
+    event.preventDefault();
+    let emailReg = /^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$/;
+    if ($('#name').val() && $('#age').val() && $('#price').val() && $('#rating').val() && $('#weapon').val() && $('#kills').val() && $('#contact').val()) {
+      console.log('Inputs are valid.')
+      $('#name').removeClass('error');
+      $('#age').removeClass('error');
+      $('#price').removeClass('error');
+      $('#rating').removeClass('error');
+      $('#weapon').removeClass('error');
+      $('#kills').removeClass('error');
+      $('#contact').removeClass('error');
+      $(`#addTheAssassin`).replaceWith(`<button class="button round secondary outline large align-center" role="button" id="confirmAddAssassin">Confirm Add</button>`);
+    } else { // If not all fields are filled out.
+      console.log('Inputs are not valid.')
+      if (!$('#name').val()) {
+        $('#name').addClass('error');
+      }
+      if (!$('#age').val()) {
+        $('#age').addClass('error');
+      }
+      if (!$('#price').val()) {
+        $('#price').addClass('error');
+      }
+      if (!$('#rating').val()) {
+        $('#rating').addClass('error');
+      }
+      if (!$('#weapon').val()) {
+        $('#weapon').addClass('error');
+      }
+      if (!$('#kills').val()) {
+        $('#kills').addClass('error');
+      }
+      if (!$('#contact').val()) {
+        $('#contact').addClass('error');
+      }
+    }
+
+  });
 
 
 })();

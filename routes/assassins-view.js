@@ -109,7 +109,18 @@ router.get('/search', (req, res) => {
   }
 });
 
-// For a GET call on /assassins that then includes an ID number. This brings up the indvidual assassin's page, rendering that assassin's infromation, including any contracts to which they may be assigned, to the individual assassin page (assassin.ejs).
+// For a GET request to /assassins/add - This will render the addassassin.ejs page.
+router.get('/add', (req, res) => {
+  res.render('../views/addassassin.ejs', {
+    onMain : false,
+    onAssassins : true,
+    onContracts : false,
+    totalAssassins : false
+  });
+});
+
+
+// For a GET call on /assassins that then includes an ID number. This brings up the indvidual assassin's page, rendering that assassin's information, including any contracts to which they may be assigned, to the individual assassin page (assassin.ejs). - THIS IS FINISHED.
 router.get('/:id', (req, res) => {
   let id = filterInt(req.params.id); // Confirming the ID provided is number.
   let idRange = [];
@@ -161,54 +172,65 @@ router.get('/:id', (req, res) => {
 });
 
 
-// For a POST request to /assassins/ - This will post a new assassin with the information provided in the body of the request.
-router.post('/', (req, res) => {
-  let assassinObj = req.body;
-  console.log(assassinObj);
-  knex('assassins').insert({
-    'name' : assassinObj.name,
-    'contact_info' : assassinObj.contact_info,
-    'age' : assassinObj.age,
-    'price' : assassinObj.price,
-    'kills' : assassinObj.kills,
-    'rating' : assassinObj.rating
-  })
-  .then((result) => {
-    if (assassinObj.weapon) {
-      knex.select('id').from('assassins').where('name',assassinObj.name)
-      .then((returning) => {
-        return knex('weapons').insert({'weapon_name':assassinObj.weapon, "assassin_id":returning[0].id});
+// For a POST request to /assassins/add - This will post a new assassin with the information provided in the body of the request.
+router.post('/add', (req, res) => {
+  let assassinObj = req.body; // Putting the request body into a fully-scoped object.
+  if (assassinObj.name && assassinObj.contactInfo && assassinObj.price && assassinObj.age && assassinObj.rating && assassinObj.kills) {
+    // Verifying that all the required variables are included before attempting the insert.
+    if (!(assassinObj.rating > 10 || assassinObj.rating < 0)) {
+      // Also verifying that the rating in within the approriate range.
+      knex('assassins').returning('id').insert({ // The main insert, returning the id for the new assassin entry.
+        'name' : assassinObj.name,
+        'contact_info' : assassinObj.contactInfo,
+        'age' : assassinObj.age,
+        'price' : assassinObj.price,
+        'kills' : assassinObj.kills,
+        'rating' : assassinObj.rating
+      })
+      .then((result) => {
+        assassinObj.id = result[0]; // Putting the new id into our object.
+        if (assassinObj.weapon) { //If a weapon was included, we add that as well.
+          return knex('weapons').insert({
+            'weapon_name' : assassinObj.weapon,
+            'assassin_id' : assassinObj.id
+          });
+        } else { // If no weapon was included, we move on.
+          return;
+        }
+      })
+      .then(() => {
+        let codeNameArr = []; // Setting up an array for any included code names.
+        if (typeof assassinObj.codeName === 'object') { // First checking to make sure there are multiple code names (instead of a single name).
+          assassinObj.codeName.forEach((name) => { // Adding each code name to an array of objects to enter.
+            codeNameArr.push({
+              'code_name' : name,
+              'assassin_id' : assassinObj.id
+            });
+          });
+          return knex('code_names').insert(codeNameArr); // Entering the array of code names.
+        } else if (assassinObj.codeName) { // If a single code name was provided, this will add it to the db.
+          return knex('code_names').insert({
+            'code_name' : assassinObj.codeName,
+            'assassin_id' : assassinObj.id
+          });
+        } else { // If no code name was entered at all, we enter nothing.
+          return;
+        }
+      })
+      .then(() => {
+        res.sendStatus(200); // If everything works, send a 200 status.
+      })
+      .catch((err) => { // If there are any database errors, send a 500 error.
+        console.error(err);
+        res.sendStatus(500);
       });
+    } else {
+      console.error('Rating was not correct range');
+      res.sendStatus(400);
     }
-    res.send(assassinObj);
-  })
-  .catch((err) => {
-    console.error(err);
-    res.sendStatus(500);
-  });
-});
-
-// For a POST request to /assassins/codenames - This will post a new code name for an assassin with the information provided in the body of the request. This will require two fields in the body: code_name and assassin_id (which must match the id of an existing assassin).
-router.post('/codenames', (req, res) => {
-  let codenameObj = req.body;
-  console.log(codenameObj);
-  if (codenameObj.code_name && codenameObj.assassin_id) {
-    knex('code_names').insert({
-      'code_name' : codenameObj.code_name,
-      'assassin_id' : codenameObj.assassin_id
-    })
-    .then(() => {
-      return knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').where('code_names.code_name', codenameObj.code_name);
-    })
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
-  } else {
-    res.send(400);
+  } else { // If the user didn't provide at least the required fields, we send a 400 status.
+    console.error('Not all fields were filled out');
+    res.sendStatus(400);
   }
 });
 

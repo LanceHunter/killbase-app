@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ./partials/head.ejs %>
+    <title>KILLBASE - Add Assassin</title>
+  </head>
+
+  <body>
+    <header>
+      <% include ./partials/header.ejs %>
+    </header>
+
+    <main>
+      <div class="row align-center">
+        <div class="col-10 align-center">
+          <% include ./partials/searchBar.ejs %>
+          <h2 class="normal">Add Assassin</h2>
+        </div>
+      </div>
+      <form method="post" action="/assassins/add" class="form">
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Name <span class="req">*</span></label>
+            <input type="text" name="name" class="w90" id="name">
+          </div>
+          <div class="col-3 form-item">
+            <label>Age <span class="req">*</span></label>
+            <input type="number" name="age" class="w30" id="age">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item" id="codeNameDiv">
+            <label>Codename(s) - 1 per line</label>
+            <div class="append w90" id="codeNameLines">
+              <input type="text" name="codeName" id="anotherCodeName">
+              <button class="button small secondary outline" id="addCodeName">+</button>
+            </div>
+          </div>
+          <div class="col-3 form-item">
+            <label>Price <span class="req">*</span></label>
+            <input type="number" name="price" class="w30" id="price">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Profile Image URL</label>
+            <input type="url" name="photo_url" class="w90" id="photo_url">
+          </div>
+          <div class="col-3 form-item">
+            <label>Rating <span class="req">*</span></label>
+            <input type="number" name="rating" class="w30" min="1" max="10" id="rating">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Weapon of Choice <span class="req">*</span></label>
+            <input type="text" name="weapon" class="w90" id="weapon">
+          </div>
+          <div class="col-3 form-item">
+            <label>Kills <span class="req">*</span></label>
+            <input type="number" name="kills" class="w30" id="kills">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Contact Email <span class="req" id="contactReq">*</span></label>
+            <input type="email" name="contactInfo" class="w90" id="contact">
+          </div>
+          <div class="col-3 push-bottom">
+            <button class="button round secondary align-center large" role="button" id="addTheAssassin">Add Assassin</button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <% include ./partials/footer.ejs %>
+  </body>
+
+</html>

@@ -48,7 +48,7 @@
     $(`#${clickedButtonID}`).replaceWith(`<button class="button outline secondary round small realDelete" id="d<%= contract.contract_set_id %>">Confirm Delete</button>`);
     $('.realDelete').click(() => {
       $.ajax({
-        url: `/assassins/${assassin}`,
+        url: `/contracts/${contract}`,
         method : 'DELETE',
         statusCode: {
             404: function() {
