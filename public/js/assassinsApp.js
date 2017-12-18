@@ -154,10 +154,59 @@
   });
 
   $('#updateTheAssassin').click(() => {
+    event.preventDefault();
     let updateData = {};
     let assassinID = $('#updateTheAssassin').val()
-    console.log("CLicked assassin id = ", assassinID);
-    event.preventDefault();
+    $(`#updateTheAssassin`).replaceWith(`<button class="button round secondary outline large align-center" role="button" id="confirmUpdateAssassin">Confirm Update</button>`);
+    $('#confirmUpdateAssassin').click(() => {
+      event.preventDefault();
+      if (newName && (newName.trim() !== oldName)) {
+        updateData.name = newName.trim();
+      }
+      if (newAge && (newAge !== oldAge)) {
+        updateData.age = newAge;
+      }
+      if (newPrice && (newPrice !== oldPrice)) {
+        updateData.price = newPrice;
+      }
+      if (newPhoto && (newPhoto !== oldPhoto)) {
+        updateData.photo_url = newPhoto;
+      }
+      if (newRating && (newRating !== oldRating)) {
+        updateData.rating = newRating;
+      }
+      if (newWeapon && (newWeapon !== oldWeapon)) {
+        updateData.weapon = newWeapon;
+      }
+      if (newKills && (newKills !== oldKills)) {
+        updateData.kills = newKills;
+      }
+      if (newContact && (newContact !== oldContact)) {
+        updateData.contact_info = newContact;
+      }
+      $.ajax({
+        url: `/assassins/edit/${assassinID}`,
+        method : 'PATCH',
+        statusCode: {
+            404: function() {
+              window.alert('The page was not found');
+            },
+            500: function() {
+              window.alert('There was a server error');
+            }
+          },
+        dataType : 'json',
+        data : updateData
+      })
+      .fail(function(err) {
+        window.alert('Something went wrong. Update not processed. Please try again later.');
+      })
+      .done(function(replytext) {
+        window.location.assign(`/assassins/${assassinID}`);
+      });
+
+    });
+
   })
 
 

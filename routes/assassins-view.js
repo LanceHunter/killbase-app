@@ -292,10 +292,10 @@ router.post('/add', (req, res) => {
 });
 
 
-// For PATCH requests to /assassins/ followed by a numberic id and a json body. - This will require an id number matching the id of an existing assassin. If the id is not a number or does not match an existing assassin, a 404 is returned. Otherwise, the information in the body is changed for the assassin whose id was entered.
+// For PATCH requests to /assassins/edit/ followed by a numberic id and a json body. - This will require an id number matching the id of an existing assassin. If the id is not a number or does not match an existing assassin, a 404 is returned. Otherwise, the information in the body is changed for the assassin whose id was entered and a 200 reply is sent.
 router.patch('/edit/:id', (req, res) => {
-  let id = filterInt(req.params.id);
-  let assassinObj = req.body;
+  let id = filterInt(req.params.id); // Making sure the id ia a number
+  let assassinObj = req.body; // Taking the JSON and putting it in the body
   console.log(assassinObj);
   let idRange = [];
   if (!isNaN(id)) {
@@ -308,10 +308,10 @@ router.patch('/edit/:id', (req, res) => {
     .then(() => {
       if (idRange.includes(id)) {
         if (assassinObj.name) {
-          console.log('Name found');
+          console.log('Name found - ', assassinObj.name);
           knex('assassins').where('id',id).update({
             'name' : assassinObj.name
-          }).returning('name')
+          })
           .catch((err) => {
             console.error(err);
             res.sendStatus(500);
@@ -321,7 +321,7 @@ router.patch('/edit/:id', (req, res) => {
           console.log('Contact info found');
           knex('assassins').where('id',id).update({
             'contact_info' : assassinObj.contact_info
-          }).returning('contact_info')
+          })
           .catch((err) => {
             console.error(err);
             res.sendStatus(500);
@@ -331,7 +331,7 @@ router.patch('/edit/:id', (req, res) => {
           console.log('Age found');
           knex('assassins').where('id',id).update({
             'age' : assassinObj.age
-          }).returning('age')
+          })
           .catch((err) => {
             console.error(err);
             res.sendStatus(500);
@@ -351,7 +351,7 @@ router.patch('/edit/:id', (req, res) => {
           console.log('Kills found');
           knex('assassins').where('id',id).update({
             'kills' : assassinObj.kills
-          }).returning('kills')
+          })
           .catch((err) => {
             console.error(err);
             res.sendStatus(500);
@@ -360,8 +360,8 @@ router.patch('/edit/:id', (req, res) => {
         if (assassinObj.rating) {
           console.log('Rating found');
           knex('assassins').where('id',id).update({
-            'rating' : assassinObj.rating
-          }).returning('rating')
+            'rating' : filterInt(assassinObj.rating)
+          })
           .catch((err) => {
             console.error(err);
             res.sendStatus(500);
@@ -371,7 +371,7 @@ router.patch('/edit/:id', (req, res) => {
           console.log('Weapons found');
           knex('weapons').where('assassin_id', id).update({
             'weapon_name' : assassinObj.weapon
-          }).returning('weapon')
+          })
           .catch((err) => {
             console.error(err);
             res.sendStatus(500);

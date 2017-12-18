@@ -33,7 +33,9 @@
       </table>
     </div>
     <div class="col-2">
-      <button class="button secondary round small edit" id="e<%= assassin.assassin_id %>">Edit</button>
+      <a href="/assassins/edit/<%= assassin.assassin_id %>">
+        <button class="button secondary round small edit" id="e<%= assassin.assassin_id %>">Edit</button>
+      </a>
       <p> </p>
       <button class="button secondary round small delete" id="d<%= assassin.assassin_id %>">Delete</button>
     </div>
