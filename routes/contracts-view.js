@@ -437,6 +437,7 @@ router.delete('/assign', (req, res) => {
 router.delete('/:id', (req, res) => {
   let id = filterInt(req.params.id);
   let idRange = [];
+  let targetID;
   if (!isNaN(id)) {
     knex.select('contract_set_id').from('contracts')
       .then((idArr) => {
@@ -446,7 +447,14 @@ router.delete('/:id', (req, res) => {
         if (idRange.includes(id)) {
           knex('assassins_contracts').where('contract_id', id).del()
           .then(() => {
+            return knex('contracts').select('target_id').where('contract_set_id', id);
+          })
+          .then((targetIDObj) => {
+            targetID = targetIDObj[0].target_id
             return knex('contracts').where('contract_set_id', id).del();
+          })
+          .then(() => {
+            return knex('targets').where('id', targetID).del();
           })
           .then((result) => {
             res.sendStatus(200);
