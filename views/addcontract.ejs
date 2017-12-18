@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ./partials/head.ejs %>
+    <title>KILLBASE - Add Contract</title>
+  </head>
+
+  <body>
+    <header>
+      <% include ./partials/header.ejs %>
+    </header>
+
+    <main>
+      <div class="row align-center">
+        <div class="col-10 align-center">
+          <% include ./partials/searchBar.ejs %>
+          <h2 class="normal">Add Contract</h2>
+        </div>
+      </div>
+      <form method="post" action="/contracts/add" class="form">
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Target Name <span class="req">*</span></label>
+            <input type="text" name="targetName" class="w90" id="targetName">
+          </div>
+          <div class="col-3 form-item">
+            <label>Security Level <span class="req">*</span></label>
+            <input type="evel" name="secLevel" class="w30" id="secLevel">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item" id="codeNameDiv">
+            <label>Target Location <span class="req">*</span></label>
+            <input type="text" class="w90" name="location" id="location">
+          </div>
+          <div class="col-3 form-item">
+            <label>Budget <span class="req">*</span></label>
+            <input type="number" name="budget" class="w30" id="budget">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Target Image URL <span class="req">*</span></label>
+            <input type="url" name="photo_url" class="w90" id="photo_url">
+          </div>
+          <div class="col-3">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Client <span class="req">*</span></label>
+            <select name="client" class="w90" id="client">
+              <option value=""></option>
+              <% clients.forEach((client) => { %>
+              <option value="<%= client %>"><%= client %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-3 push-bottom">
+            <button class="button round secondary align-center large" role="button" id="addTheContract">Add Contract</button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <% include ./partials/footer.ejs %>
+  </body>
+
+</html>

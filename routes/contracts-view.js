@@ -35,6 +35,24 @@ router.get('/', (req, res) => {
   });
 });
 
+// For a GET request to /contracts/add - This will bring up the add contract page. - THIS IS COMPLETE.
+router.get('/add/', (req, res) => {
+  knex('clients').select('client_name') // Getting all client names.
+  .then((clients) => {
+    let clientNames = clients.map((client) => { // Putting those client names into an array so it's just the names and not an object with the names as a value.
+      return client.client_name;
+    });
+    res.render('../views/addcontract.ejs', { // Sending off to the add contract page to render.
+      onMain : false,
+      onAssassins : false,
+      onContracts : true,
+      search : false,
+      clients : clientNames
+    });
+  });
+});
+
+
 // For a GET request to /contracts/search. We first check to see if the target name or the code name is being searched. Then, depending on the search type, the name string provided by the user is searched. THIS IS COMPLETE.
 router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch; // The string for the type of search performed.
@@ -189,37 +207,38 @@ router.post('/assign', (req, res) => {
   }
 });
 
-// For POST requests to /contracts - This will take the body of the request and first check to see if the client is in our client list. Then it creates a target, then if the client is not already in our list then it creates a new client. If the client is already in our list then it gets the id for that client. Finally, it create contract for that target and client and sends the JSON for the join table of contract+target.
-router.post('/', (req, res) => {
+// For POST requests to /contracts/add - This will take the body of the request and first check to see if the client is in our client list. Then it creates a target, then if the client is not already in our list then it creates a new client. If the client is already in our list then it gets the id for that client. Finally, it create contract for that target and client and sends the JSON for the join table of contract+target.
+router.post('/add/', (req, res) => {
   let bodyObj = req.body;
   let targetID;
   let clientID;
   let clientArr = [];
+  let contractObj = {};
   let targetObj = {
-    'name' : bodyObj.target_name,
+    'name' : bodyObj.targetName,
     'location' : bodyObj.location,
     'photo_url' : bodyObj.photo_url,
-    'security_level' : bodyObj.security_level
+    'security_level' : bodyObj.secLevel
   };
   let clientObj = {
-    'name' : bodyObj.client_name
+    'client_name' : bodyObj.client
   }
-  knex.select('name').table('clients')
+  knex.select('client_name').table('clients')
   .then((results) => {
     console.log(results);
-    for (let i=0; i<results.length; i++) {
-      clientArr.push(results[i].name);
-    }
-    return knex('targets').insert(targetObj).returning('id')
+    results.forEach((client) => {
+      clientArr.push(client.client_name);
+    })
+    return knex('targets').insert(targetObj).returning('id');
   })
   .then((target_id) => {
     targetID = target_id[0];
-    if (clientArr.includes(bodyObj.client_name)) {
+    if (clientArr.includes(bodyObj.client)) {
       console.log('Name not found.')
-      return knex.select('id').from('clients').where('name', bodyObj.client_name);
+      return knex.select('id').from('clients').where('client_name', bodyObj.client);
     } else {
       console.log('Name found')
-      return knex('clients').insert({name:bodyObj.client_name}).returning('id');
+      return knex('clients').insert({name:bodyObj.client}).returning('id');
     }
   })
   .then((client_id) => {
@@ -232,13 +251,25 @@ router.post('/', (req, res) => {
       'budget' : bodyObj.budget
     };
     console.log(contractObj);
-    return knex('contracts').insert(contractObj).returning('id');
+    return knex('contracts').insert(contractObj).returning('contract_set_id');
   })
   .then((contract_id) => {
-    return           knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.id', contract_id[0]);
+    return           knex.select('*').from('contracts').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').where('contracts.contract_set_id', contract_id[0]);
   })
   .then((response) => {
-    res.send(response);
+    contractObj = response[0];
+    return knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id');
+  })
+  .then((assassinTotal) => {
+    contractObj.totalAssassins = assassinTotal;
+    contractObj.assassins = [];
+    res.render('../views/contract.ejs', {
+      onMain : false,
+      onAssassins : false,
+      onContracts : true,
+      assassins : false,
+      contract : contractObj
+    });
   })
   .catch((err) => {
     console.error(err);

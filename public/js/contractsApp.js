@@ -9,7 +9,7 @@
         'contractAssigned' : contract
       },
       function(data) {
-        window.location.reload();
+        window.location.assign(`/contracts/${contract}`);
       }
     )
     .fail(function(err) {
@@ -93,6 +93,41 @@
       });
     });
   });
+
+  $('#addTheContract').click(() => {
+    event.preventDefault();
+    if ($('#targetName').val() && $('#secLevel').val() && $('#location').val() && $('#budget').val() && $('#photo_url').val() && $('#client').val()) {
+      console.log('Inputs are valid.')
+      $('#targetName').removeClass('error');
+      $('#secLevel').removeClass('error');
+      $('#location').removeClass('error');
+      $('#budget').removeClass('error');
+      $('#photo_url').removeClass('error');
+      $('#client').removeClass('error');
+      $(`#addTheContract`).replaceWith(`<button class="button round secondary outline large align-center" role="button" id="confirmAddContract">Confirm Add</button>`);
+    } else { // If not all fields are filled out.
+      console.log('Inputs are not valid.')
+      if (!$('#targetName').val()) {
+        $('#targetName').addClass('error');
+      }
+      if (!$('#secLevel').val()) {
+        $('#secLevel').addClass('error');
+      }
+      if (!$('#location').val()) {
+        $('#location').addClass('error');
+      }
+      if (!$('#budget').val()) {
+        $('#budget').addClass('error');
+      }
+      if (!$('#photo_url').val()) {
+        $('#photo_url').addClass('error');
+      }
+      if (!$('#client').val()) {
+        $('#client').addClass('error');
+      }
+    }
+  });
+
 
 
 })();

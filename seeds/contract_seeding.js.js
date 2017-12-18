@@ -3,7 +3,10 @@ let csv;
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex('contracts').del()
+  return knex('assassins_contracts').del()
+    .then(() => {
+      return knex('contracts').del();
+    })
     .then(() => {
       return knex('clients').del();
     })

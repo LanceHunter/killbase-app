@@ -204,7 +204,6 @@
       .done(function(replytext) {
         window.location.assign(`/assassins/${assassinID}`);
       });
-
     });
 
   })
