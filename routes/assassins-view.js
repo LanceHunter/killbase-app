@@ -119,6 +119,52 @@ router.get('/add', (req, res) => {
   });
 });
 
+// For a GET request to /assassins/edit - This will need to be followed by an ID number so that we can grab the assassin that the user wants to edit. A lot of this is the same code as an individual assassin get request.
+router.get('/edit/:id', (req, res) => {
+  let id = filterInt(req.params.id); // Confirming the ID provided is number.
+  let idRange = [];
+  let assassinObj = {}; // This will allow us to get all the information in a single object that is scoped in the full route.
+  if (!isNaN(id)) { // If the id provided is a number, continue on to the actual logic.
+    knex.select('id').from('assassins') // Grabbing all the IDs for our assassins.
+    .then((idArr) => {
+      // Now we take the array of returned id objects and pull the IDs out and into our variable showing which ids are in the right range.
+      idArr.forEach((idObj) => {
+          idRange.push(idObj.id);
+      })
+      if (idRange.includes(id)) { // Now we check to see if the provided ID is in the range of current assassin ids.
+        return knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').where('assassins.id', id) // Getting the join table of the assassin in question.
+        .then((result) => {
+            assassinObj = result[0]; // Pulling the result out of the array and putting it into the higher-scoped assassinObj variable.
+            return knex.select('code_name').from('code_names').where('assassin_id', id); // Then looking for all code names that match the assassin.
+          })
+          .then((codeNames) => {
+            assassinObj.codeNameArr = codeNames.map((name) => {
+              return name.code_name;
+            }); // Then we put that code name results array into assassinObj.
+            assassinObj.photo_url = ''; //Empty string for now with this data.
+            console.log(assassinObj);
+            res.render('../views/editassassin.ejs', { // ...and send it to the assassin.ejs page to get rendered.
+              onMain : false,
+              onAssassins : true,
+              onContracts : false,
+              assassins : false,
+              assassinObj : assassinObj
+            });
+          });
+      } else { // If the ID provided is a number but isn't in range, we send a 404.
+        res.sendStatus(404);
+      }
+    })
+    .catch((err) => { // If there's any database error, give a 404 error.
+      console.error(err);
+      res.sendStatus(500);
+    });
+  } else { // If the id provided wasn't a number, give a 404 error.
+    res.sendStatus(404);
+  }
+});
+
+
 
 // For a GET call on /assassins that then includes an ID number. This brings up the indvidual assassin's page, rendering that assassin's information, including any contracts to which they may be assigned, to the individual assassin page (assassin.ejs). - THIS IS FINISHED.
 router.get('/:id', (req, res) => {

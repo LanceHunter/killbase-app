@@ -2,6 +2,8 @@
   console.log("You see me!");
   let codeNameFieldTotal = 1;
 
+  
+
   $('.delete').click(() => {
     let clickedButtonID = event.target.id;
     let newIDNumber = event.target.id.slice(1);

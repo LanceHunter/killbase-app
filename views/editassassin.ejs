@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ./partials/head.ejs %>
+    <title>KILLBASE - Update <%= assassinObj.name %></title>
+  </head>
+
+  <body>
+    <header>
+      <% include ./partials/header.ejs %>
+    </header>
+
+    <main>
+      <div class="row align-center">
+        <div class="col-10 align-center">
+          <% include ./partials/searchBar.ejs %>
+          <h2 class="normal">Edit <%= assassinObj.name %></h2>
+        </div>
+      </div>
+      <form class="form">
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Name <span class="req">*</span></label>
+            <input type="text" name="name" class="w90" id="name" value="<%= assassinObj.name %>">
+          </div>
+          <div class="col-3 form-item">
+            <label>Age <span class="req">*</span></label>
+            <input type="number" name="age" class="w30" id="age" value="<%= assassinObj.age %>">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <% if (assassinObj.codeNameArr.length === 0) { %>
+          <div class="col-7 form-item" id="codeNameDiv">
+            <label>Codename(s) - 1 per line</label>
+            <div class="append w90" id="codeNameLines">
+              <input type="text" name="codeName" id="anotherCodeName">
+              <button class="button small secondary outline" id="addCodeName">+</button>
+            </div>
+          </div>
+          <% } else { %>
+            <div class="col-7 form-item" id="codeNameDiv">
+              <label>Codename(s) - 1 per line</label>
+              <div class="append w90" id="codeNameLines">
+                <input type="text" name="codeName" id="anotherCodeName" value="<%= assassinObj.codeNameArr[0]  %>">
+                <button class="button small secondary outline" id="addCodeName">+</button>
+              </div>
+              <% for (let i=1; i<assassinObj.codeNameArr.length; i++) { %>
+                <div class="w90" id="codeNameLines">
+                  <input type="text" name="codeName" id="anotherCodeName" value="<%= assassinObj.codeNameArr[i]  %>">
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+          <div class="col-3 form-item">
+            <label>Price <span class="req">*</span></label>
+            <input type="number" name="price" class="w30" id="price" value="<%= assassinObj.price %>">
+          </div>
+        </div>
+
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Profile Image URL</label>
+            <input type="url" name="photo_url" class="w90" id="photo_url" value="<%= assassinObj.photo_url %>">
+          </div>
+          <div class="col-3 form-item">
+            <label>Rating <span class="req">*</span></label>
+            <input type="number" name="rating" class="w30" min="1" max="10" id="rating" value="<%= assassinObj.rating %>">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Weapon of Choice <span class="req">*</span></label>
+            <input type="text" name="weapon" class="w90" id="weapon" value="<%= assassinObj.weapon_name %>">
+          </div>
+          <div class="col-3 form-item">
+            <label>Kills <span class="req">*</span></label>
+            <input type="number" name="kills" class="w30" id="kills" value="<%= assassinObj.kills %>">
+          </div>
+        </div>
+        <div class="row gutters align-center">
+          <div class="col-7 form-item">
+            <label>Contact Email <span class="req" id="contactReq">*</span></label>
+            <input type="email" name="contactInfo" class="w90" id="contact" value="<%= assassinObj.contact_info %>">
+          </div>
+          <div class="col-3 push-bottom">
+            <button class="button round secondary align-center large" role="button" id="updateTheAssassin">Update <%= assassinObj.name %></button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <% include ./partials/footer.ejs %>
+  </body>
+
+</html>
