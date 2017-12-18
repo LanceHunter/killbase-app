@@ -172,7 +172,7 @@ router.get('/:id', (req, res) => {
 });
 
 
-// For a POST request to /assassins/add - This will post a new assassin with the information provided in the body of the request.
+// For a POST request to /assassins/add - This will post a new assassin with the information provided in the body of the request. - THIS IS FINISHED
 router.post('/add', (req, res) => {
   let assassinObj = req.body; // Putting the request body into a fully-scoped object.
   if (assassinObj.name && assassinObj.contactInfo && assassinObj.price && assassinObj.age && assassinObj.rating && assassinObj.kills) {
@@ -207,8 +207,10 @@ router.post('/add', (req, res) => {
               'assassin_id' : assassinObj.id
             });
           });
+          assassinObj.codeNameArr = codeNameArr; // This is needed for page render.
           return knex('code_names').insert(codeNameArr); // Entering the array of code names.
         } else if (assassinObj.codeName) { // If a single code name was provided, this will add it to the db.
+          codeNameArr.codeNameArr = [assassinObj.codeName]; // This is needed for page render.
           return knex('code_names').insert({
             'code_name' : assassinObj.codeName,
             'assassin_id' : assassinObj.id
@@ -218,7 +220,16 @@ router.post('/add', (req, res) => {
         }
       })
       .then(() => {
-        res.sendStatus(200); // If everything works, send a 200 status.
+        // If everything works, send the individual assassin page for that assassin.
+        assassinObj.contracts = []; // This is needed for page render.
+        res.render('../views/assassin.ejs', {
+          onMain : false,
+          onAssassins : true,
+          onContracts : false,
+          assassins : false,
+          assassinObj : assassinObj
+        });
+
       })
       .catch((err) => { // If there are any database errors, send a 500 error.
         console.error(err);

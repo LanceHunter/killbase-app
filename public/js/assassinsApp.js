@@ -4,9 +4,10 @@
 
   $('.delete').click(() => {
     let clickedButtonID = event.target.id;
-    let assassin = event.target.id.slice(1);
-    $(`#${clickedButtonID}`).replaceWith(`<button class="button outline secondary round small realDelete" id="d<%= assassin.id %>">Confirm Delete</button>`);
+    let newIDNumber = event.target.id.slice(1);
+    $(`#${clickedButtonID}`).replaceWith(`<button class="button outline secondary round small realDelete" id="d${newIDNumber}">Confirm Delete</button>`);
     $('.realDelete').click(() => {
+      let assassin = event.target.id.slice(1);
       $.ajax({
         url: `/assassins/${assassin}`,
         method : 'DELETE',
@@ -30,9 +31,10 @@
 
   $('.deleteSolo').click(() => {
     let clickedButtonID = event.target.id;
-    let assassin = event.target.id.slice(1);
-    $(`#${clickedButtonID}`).replaceWith(`<button class="button outline secondary round small realDelete" id="d<%= assassin.id %>">Confirm Delete</button>`);
+    let newIDNumber = event.target.id.slice(1);
+    $(`#${clickedButtonID}`).replaceWith(`<button class="button outline secondary round small realDelete" id="d${newIDNumber}">Confirm Delete</button>`);
     $('.realDelete').click(() => {
+      let assassin = event.target.id.slice(1);
       $.ajax({
         url: `/assassins/${assassin}`,
         method : 'DELETE',

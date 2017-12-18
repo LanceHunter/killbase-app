@@ -3,7 +3,7 @@
   <div class="row between align-center">
     <div class="col-2">
       <figure>
-        <a href="assassins/<%= assassin.id %>">
+        <a href="assassins/<%= assassin.assassin_id %>">
         <img src="/static/images/killbase-assassins.png" alt="Profile photo, <%= assassin.name %>" height="200" width="200">
         <figcaption><%= assassin.name %></figcaption>
         </a>
@@ -33,9 +33,9 @@
       </table>
     </div>
     <div class="col-2">
-      <button class="button secondary round small edit" id="e<%= assassin.id %>">Edit</button>
+      <button class="button secondary round small edit" id="e<%= assassin.assassin_id %>">Edit</button>
       <p> </p>
-      <button class="button secondary round small delete" id="d<%= assassin.id %>">Delete</button>
+      <button class="button secondary round small delete" id="d<%= assassin.assassin_id %>">Delete</button>
     </div>
   </div>
 </div>

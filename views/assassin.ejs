@@ -24,7 +24,7 @@
       <div class="row gutters align-center">
         <div class="col-2">
           <figure>
-            <a href="/assassins/<%= assassinObj.id %>">
+            <a href="/assassins/<%= assassinObj.assassin_id %>">
             <img src="/static/images/killbase-assassins.png" alt="Profile photo, <%= assassinObj.name %>" height="200" width="200">
             <figcaption><%= assassinObj.name %></figcaption>
             </a>
@@ -56,9 +56,9 @@
           </table>
         </div>
         <div class="col-1 offset-1">
-          <button class="button secondary round small editSolo" id="e<%= assassinObj.id %>">Edit</button>
+          <button class="button secondary round small editSolo" id="e<%= assassinObj.assassin_id %>">Edit</button>
           <p></p>
-          <button class="button secondary round small deleteSolo" id="d<%= assassinObj.id %>">Delete</button>
+          <button class="button secondary round small deleteSolo" id="d<%= assassinObj.assassin_id %>">Delete</button>
         </div>
       </div>
       <div class="col-8 push-center contractsMultiview">
