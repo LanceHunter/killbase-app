@@ -65,73 +65,84 @@ router.get('/add/', (req, res) => {
 // For a GET request to /contracts/search. We first check to see if the target name or the code name is being searched. Then, depending on the search type, the name string provided by the user is searched. THIS IS COMPLETE.
 router.get('/search', (req, res) => {
   let queryType = req.query.typeSearch; // The string for the type of search performed.
+  let totalAssassins = [];
   let name = req.query.nameSearch; // The string that the user wants searched.
-  if (queryType === `Target`) { // This is the logic for searching targets.
-    let namesRange = []; // For holding the names of all targets. We'll compare against this later.
-    knex.select('name').from('targets')
-    .then((nameArr) => {
-      nameArr.forEach((nameObj) => { // This grabs the target names out of their objects and puts their strings into the namesRange array.
-        namesRange.push(nameObj.name);
+  knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
+  .then((assassinTotal) => {
+    totalAssassins = assassinTotal;
+    if (queryType === `Target`) { // This is the logic for searching targets.
+      let namesRange = []; // For holding the names of all targets. We'll compare against this later.
+      knex.select('name').from('targets')
+      .then((nameArr) => {
+        nameArr.forEach((nameObj) => { // This grabs the target names out of their objects and puts their strings into the namesRange array.
+          namesRange.push(nameObj.name);
+        });
+        let matchingNames = []; // An array of any names that match.
+        // We now see if the name provided by the user matches any of the names in the database/namesRange array. For every case where it does, the target name is added to the new namesearch array.
+        namesRange.forEach((fullName) => {
+          if (fullName.toUpperCase().includes(name.toUpperCase())) {
+            matchingNames.push(fullName);
+          }
+        });
+        return knex('targets').fullOuterJoin('contracts', 'targets.id', 'contracts.target_id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('targets.name', matchingNames);
+        // We are now doing a search for all targets whose name is in the array, and joining those results with the corresponding contract and client information.
+      })
+      .then((contracts) => {
+        contracts.forEach((contract) => {
+          contract.totalAssassins = totalAssassins;
+        });
+        // Now we send the array of results to the multiple contrats page for rendering.
+        res.render('../views/contracts.ejs', {
+          onMain : false,
+          onAssassins : false,
+          onContracts : true,
+          search : true,
+          contracts : contracts
+        });
+      })
+      .catch((err) => {
+        // If there's a server error, we send a 500.
+        console.error(err);
+        res.sendStatus(500);
       });
-      let matchingNames = []; // An array of any names that match.
-      // We now see if the name provided by the user matches any of the names in the database/namesRange array. For every case where it does, the target name is added to the new namesearch array.
-      namesRange.forEach((fullName) => {
-        if (fullName.toUpperCase().includes(name.toUpperCase())) {
-          matchingNames.push(fullName);
-        }
+    } else {
+      //This is basically the same as above, but searching by Client Name instead of Name.
+      let clientNameRange = []; // A fully-scoped array to be filled with client names.
+      knex.select('client_name').from('clients')
+      // Grabbing all the client names.
+      .then((clientNameArr) => {
+        clientNameArr.forEach((client) => {
+          clientNameRange.push(client.client_name);
+        }); // Pulling out the client name strings from the array of object results.
+        let matchingNames = []; // An array to be used for any client names that match.
+        // We now see if the string provided by the user is in any of the names in the database/clientNameRange array. For every case where it does, the target name is added to the new namesearch array.
+        clientNameRange.forEach((fullName) => {
+          if (fullName.toUpperCase().includes(name.toUpperCase())) {
+            matchingNames.push(fullName);
+          }
+        });
+        // Then we search for all clients whose names matched the search and return them joined with all contracts to which they are associated as well as the targets for those contracts.
+        return knex('clients').fullOuterJoin('contracts', 'clients.id', 'contracts.client_id').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').whereIn('clients.client_name', matchingNames)
+      })
+      .then((contracts) => {
+        contracts.forEach((contract) => {
+          contract.totalAssassins = totalAssassins;
+        });
+        // Finally, we take the array of those results and pass it to the multiple contracts view page for rendering.
+        res.render('../views/contracts.ejs', {
+          onMain : false,
+          onAssassins : false,
+          onContracts : true,
+          search : true,
+          contracts : contracts
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
       });
-      return knex('targets').fullOuterJoin('contracts', 'targets.id', 'contracts.target_id').fullOuterJoin('clients', 'contracts.client_id', 'clients.id').whereIn('targets.name', matchingNames);
-      // We are now doing a search for all targets whose name is in the array, and joining those results with the corresponding contract and client information.
-    })
-    .then((contracts) => {
-      // Now we send the array of results to the multiple contrats page for rendering.
-      res.render('../views/contracts.ejs', {
-        onMain : false,
-        onAssassins : false,
-        onContracts : true,
-        search : true,
-        contracts : contracts
-      });
-    })
-    .catch((err) => {
-      // If there's a server error, we send a 500.
-      console.error(err);
-      res.sendStatus(500);
-    });
-  } else {
-    //This is basically the same as above, but searching by Client Name instead of Name.
-    let clientNameRange = []; // A fully-scoped array to be filled with client names.
-    knex.select('client_name').from('clients')
-    // Grabbing all the client names.
-    .then((clientNameArr) => {
-      clientNameArr.forEach((client) => {
-        clientNameRange.push(client.client_name);
-      }); // Pulling out the client name strings from the array of object results.
-      let matchingNames = []; // An array to be used for any client names that match.
-      // We now see if the string provided by the user is in any of the names in the database/clientNameRange array. For every case where it does, the target name is added to the new namesearch array.
-      clientNameRange.forEach((fullName) => {
-        if (fullName.toUpperCase().includes(name.toUpperCase())) {
-          matchingNames.push(fullName);
-        }
-      });
-      // Then we search for all clients whose names matched the search and return them joined with all contracts to which they are associated as well as the targets for those contracts.
-      return knex('clients').fullOuterJoin('contracts', 'clients.id', 'contracts.client_id').fullOuterJoin('targets', 'contracts.target_id', 'targets.id').whereIn('clients.client_name', matchingNames)
-    })
-    .then((contracts) => {
-      // Finally, we take the array of those results and pass it to the multiple contracts view page for rendering.
-      res.render('../views/contracts.ejs', {
-        onMain : false,
-        onAssassins : false,
-        onContracts : true,
-        search : true,
-        contracts : contracts
-      });
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
-  }
+    }
+  });
 });
 
 // For a GET request to the route /contracts/edit/ that includes an id. - This will bring up the contract edit page, filled in with the infromation included in contract.

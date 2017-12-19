@@ -3,7 +3,7 @@
   <div class="row between align-center">
     <div class="col-2">
       <figure>
-        <a href="contracts/<%= contract.contract_set_id %>">
+        <a href="/contracts/<%= contract.contract_set_id %>">
         <img src="<%= contract.photo_url %>" alt="Photograph of <%= contract.target_name %>" height="200" width="200">
         <figcaption><%= contract.name %></figcaption>
         </a>
@@ -27,30 +27,54 @@
       </table>
     </div>
     <div class="col-2">
+  <% if (contract.completed) { %>
+      <button class="button secondary round small disabled editSolo" id="e<%= contract.contract_set_id %>">Edit</button>
+  <% } else { %>
       <a href="/contracts/edit/<%= contract.contract_set_id %>">
-        <button class="button secondary round small edit" id="e<%= contract.contract_set_id %>">Edit</button>
+        <button class="button secondary round small editSolo" id="e<%= contract.contract_set_id %>">Edit</button>
       </a>
+  <% } %>
       <p> </p>
-      <button class="button secondary round small delete" id="d<%= contract.contract_set_id %>">Delete</button>
-      <p> </p>
-      <button class="button secondary round small markComplete" id="c<%= contract.contract_set_id %>">Complete</button>
-<% // Below is the select for marking assassins completing contract. %>
-      <form class="form hide" method="" id="complete<%= contract.contract_set_id %>">
-        <label>Completed by:</label>
-        <select name="assassinToAssign" id="completedBy<%= contract.contract_set_id %>">
-            <% let assassinCheckArr0 = []; %>
-            <% contract.totalAssassins.forEach((assassin) => { %>
-            <% if (!assassinCheckArr0.includes(assassin.id)) { %>
-            <%   if (assassin.name) {  %>
-                <option value="<%= assassin.id %>" id="a<%= assassin.id %>"><%= assassin.name %></option>
-            <%   } else { %>
-              <option value="<%= assassin.id %>" id="a<%= assassin.id %>"><%= assassin.code_name %></option>
-            <%   } %>
-            <% assassinCheckArr0.push(assassin.id); %>
-            <% } %>
-            <% }) %>
-        </select>
-        <button type="submit" class="button secondary outline round small" name="contractAssigned" value="<%= contract.contract_set_id %>" id="confirmComplete<%= contract.contract_set_id %>">Confirm Complete</button>
+      <% if (contract.completed) { %>
+                <button class="button secondary round small disabled" id="d<%= contract.contract_set_id %>">Delete</button>
+                <p> </p>
+
+                <% // This code finds the name of the completing assassin. %>
+                <% let completingAssassin = "none"; %>
+                <% contract.totalAssassins.forEach((assassin) => { %>
+                <%   if ((contract.completed_by === assassin.id) && assassin.name) {  %>
+                <%     completingAssassin = assassin.name; %>
+                <%   } else if (contract.completed_by === assassin.id) { %>
+                <%     completingAssassin = assassin.code_name; %>
+                <%   } %>
+                <% }); %>
+
+
+
+                <button class="button secondary round outline small disabled" id="c<%= contract.contract_set_id %>">Completed by <br><%= completingAssassin %></button>
+      <% } else { %>
+                <button class="button secondary round small deleteSolo" id="d<%= contract.contract_set_id %>">Delete</button>
+                <p> </p>
+                <button class="button secondary round small markCompleteSolo" id="c<%= contract.contract_set_id %>">Complete</button>
+      <% // Below is the select for marking assassins completing contract. %>
+              <form class="form hide" method="" id="complete<%= contract.contract_set_id %>">
+                <label>Completed by:</label>
+                <select name="assassinToAssign" id="completedBy<%= contract.contract_set_id %>">
+                    <% let assassinCheckArr0 = []; %>
+                    <% contract.totalAssassins.forEach((assassin) => { %>
+                    <% if (!assassinCheckArr0.includes(assassin.id)) { %>
+                    <%   if (assassin.name) {  %>
+                        <option value="<%= assassin.id %>" id="a<%= assassin.id %>"><%= assassin.name %></option>
+                    <%   } else { %>
+                      <option value="<%= assassin.id %>" id="a<%= assassin.id %>"><%= assassin.code_name %></option>
+                    <%   } %>
+                    <% assassinCheckArr0.push(assassin.id); %>
+                    <% } %>
+                    <% }) %>
+                </select>
+                <button type="submit" class="button secondary outline small" name="contractAssigned" value="<%= contract.contract_set_id %>" id="confirmComplete<%= contract.contract_set_id %>">Confirm Complete</button>
+              </form>
+      <% } // This is the end of the else statement where assignment is complete %>
       </form>
     </div>
   </div>
