@@ -17,8 +17,41 @@ const filterInt = function(value) {
   return NaN;
 };
 
-// For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts. THIS IS COMPLETE.
+// For a GET request to the main contracts route, /contracts - This will return a page showing all of the existing contracts. THIS IS COMPLETE.
 router.get('/', (req, res) => {
+  let totalAssassins = [];
+  knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
+  .then((assassinTotal) => {
+    totalAssassins = assassinTotal;
+    return knex.select('*').from('contracts').join('targets', 'contracts.target_id', 'targets.id').join('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
+  })
+  .then((results) => {
+    let finalResults = [];
+    results.forEach((result) => {
+      if (!result.completed) {
+        result.totalAssassins = totalAssassins;
+        finalResults.push(result);
+      }
+    });
+    console.log(finalResults);
+    res.render('../views/contracts.ejs', { // Then we send that to the multiple contracts page to get rendered.
+      onMain : false,
+      onAssassins : false,
+      onContracts : true,
+      search : false,
+      total : false,
+      contracts : finalResults
+    });
+  })
+  .catch((err) => { // If there's a database error, we send a 500 error.
+    console.error(err);
+    res.sendStatus(500);
+  });
+});
+
+
+// For a GET request to the main contracts route, /contracts/all - This will return a page showing all of the existing contracts.
+router.get('/all', (req, res) => {
   let totalAssassins = [];
   knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
   .then((assassinTotal) => {
@@ -35,6 +68,7 @@ router.get('/', (req, res) => {
       onAssassins : false,
       onContracts : true,
       search : false,
+      total : true,
       contracts : results
     });
   })
@@ -97,6 +131,7 @@ router.get('/search', (req, res) => {
           onAssassins : false,
           onContracts : true,
           search : true,
+          total : false,
           contracts : contracts
         });
       })
@@ -134,6 +169,7 @@ router.get('/search', (req, res) => {
           onAssassins : false,
           onContracts : true,
           search : true,
+          total : false,
           contracts : contracts
         });
       })
