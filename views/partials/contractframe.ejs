@@ -34,6 +34,24 @@
       <button class="button secondary round small delete" id="d<%= contract.contract_set_id %>">Delete</button>
       <p> </p>
       <button class="button secondary round small markComplete" id="c<%= contract.contract_set_id %>">Complete</button>
+<% // Below is the select for marking assassins completing contract. %>
+      <form class="form hide" method="" id="complete<%= contract.contract_set_id %>">
+        <label>Completed by:</label>
+        <select name="assassinToAssign" id="completedBy<%= contract.contract_set_id %>">
+            <% let assassinCheckArr0 = []; %>
+            <% contract.totalAssassins.forEach((assassin) => { %>
+            <% if (!assassinCheckArr0.includes(assassin.id)) { %>
+            <%   if (assassin.name) {  %>
+                <option value="<%= assassin.id %>" id="a<%= assassin.id %>"><%= assassin.name %></option>
+            <%   } else { %>
+              <option value="<%= assassin.id %>" id="a<%= assassin.id %>"><%= assassin.code_name %></option>
+            <%   } %>
+            <% assassinCheckArr0.push(assassin.id); %>
+            <% } %>
+            <% }) %>
+        </select>
+        <button type="submit" class="button secondary outline round small" name="contractAssigned" value="<%= contract.contract_set_id %>" id="confirmComplete<%= contract.contract_set_id %>">Confirm Complete</button>
+      </form>
     </div>
   </div>
 </div>

@@ -19,14 +19,23 @@ const filterInt = function(value) {
 
 // For a GET request to the main contracts route, /contracts - This will return a page showing all of the current contracts. THIS IS COMPLETE.
 router.get('/', (req, res) => {
-  knex.select('*').from('contracts').join('targets', 'contracts.target_id', 'targets.id').join('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
-  .then((result) => {
+  let totalAssassins = [];
+  knex('assassins').distinct('name').select('*').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
+  .then((assassinTotal) => {
+    totalAssassins = assassinTotal;
+    return knex.select('*').from('contracts').join('targets', 'contracts.target_id', 'targets.id').join('clients', 'contracts.client_id', 'clients.id') // Grabbing all contracts joined with their target and the client name.
+  })
+  .then((results) => {
+    results.forEach((result) => {
+      result.totalAssassins = totalAssassins;
+    });
+    console.log(results);
     res.render('../views/contracts.ejs', { // Then we send that to the multiple contracts page to get rendered.
       onMain : false,
       onAssassins : false,
       onContracts : true,
       search : false,
-      contracts : result
+      contracts : results
     });
   })
   .catch((err) => { // If there's a database error, we send a 500 error.
