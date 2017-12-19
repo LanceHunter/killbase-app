@@ -5,12 +5,21 @@
       <figure>
         <a href="assassins/<%= assassin.assassin_id %>">
         <img src="/static/images/killbase-assassins.png" alt="Profile photo, <%= assassin.name %>" height="200" width="200">
+        <% if (assassin.name) { %>
         <figcaption><%= assassin.name %></figcaption>
+        <% } else { %>
+          <figcaption><%= assassin.codeNameArr[0] %></figcaption>
+        <% } %>
         </a>
       </figure>
     </div>
     <div class="col-7">
       <h4 class="normal"><%= assassin.name %></h4>
+      <% assassin.codeNameArr.forEach((codename) => { %>
+        <% if (codename) { %>
+          <h4 class="normal"><em><%= codename %></em></h4>
+        <% } %>
+      <% }); %>
       <table>
         <tr>
           <td>Rating:</td>

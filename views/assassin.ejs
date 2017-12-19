@@ -26,13 +26,17 @@
           <figure>
             <a href="/assassins/<%= assassinObj.assassin_id %>">
             <img src="/static/images/killbase-assassins.png" alt="Profile photo, <%= assassinObj.name %>" height="200" width="200">
+            <% if (assassinObj.name) { %>
             <figcaption><%= assassinObj.name %></figcaption>
+            <% } else { %>
+              <figcaption><%= assassinObj.codeNameArr[0] %></figcaption>
+            <% } %>
             </a>
           </figure>
         </div>
         <div class="col-4 offset-1">
           <% assassinObj.codeNameArr.forEach((codeName) => { %>
-            <h4 class="normal"><%= codeName.code_name %></h4>
+            <h4 class="normal"><em><%= codeName.code_name %><em></h4>
           <% }); %>
           <table>
             <tr>

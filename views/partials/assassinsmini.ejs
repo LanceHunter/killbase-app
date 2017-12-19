@@ -20,7 +20,11 @@
       </table>
     </div>
     <div class="col-1 offset-1">
+    <% if (contract.completed) { %>
+      <button class="button secondary round small disabled" value="<%= contract.contract_set_id %>" id="<%= assassin.id %>">Remove</button>
+    <% } else { %>
       <button class="button secondary round small removeButton" value="<%= contract.contract_set_id %>" id="<%= assassin.id %>">Remove</button>
+    <% } %>
       </form>
     </div>
   </div>

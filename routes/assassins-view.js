@@ -20,14 +20,36 @@ const filterInt = function(value) {
 router.get('/', (req, res) => {
   console.log(req.body);
   let codeNameArr = [];
-  knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id')
-  .then((assassinArr) => {
+  let assassinArr = [];
+  knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id')
+  .then((results) => {
+    console.log(`Here are the results - `, results);
+    let assassinsArr = [];
+    let idCheck = [];
+    results.forEach((result) => {
+      if (idCheck.includes(result.id)) {
+        let indexSpot;
+        assassinsArr.forEach((assassin, index) => {
+          if (assassin.id === result.id) {
+            indexSpot = index;
+          }
+        });
+        console.log('The index spot', indexSpot);
+        assassinsArr[indexSpot].codeNameArr.push(result.code_name);
+      } else {
+        idCheck.push(result.id);
+        result.codeNameArr = [];
+        result.codeNameArr.push(result.code_name);
+        assassinsArr.push(result);
+      }
+    })
+    console.log(assassinsArr);
     res.render('../views/assassins.ejs', {
       onMain : false,
       onAssassins : true,
       onContracts : false,
       totalAssassins : true,
-      assassins : assassinArr
+      assassins : assassinsArr
     });
   })
   .catch((err) => {
