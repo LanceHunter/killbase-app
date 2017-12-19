@@ -13,7 +13,7 @@
       }
     )
     .fail(function(err) {
-      window.alert('Something went wrong. Assignment not processed. Please try again later.');
+      window.alert('Something went wrong. Assignment may not have processed. Please try again later.');
     });
     event.preventDefault();
   });
@@ -60,7 +60,7 @@
           }
       })
       .fail(function(err) {
-        window.alert('Something went wrong. Deletion not processed. Please try again later.');
+        window.alert('Something went wrong. Deletion may not have processed. Please try again later.');
       })
       .done(function(replytext) {
         window.location.reload();
@@ -86,7 +86,7 @@
           }
       })
       .fail(function(err) {
-        window.alert('Something went wrong. Deletion not processed. Please try again later.');
+        window.alert('Something went wrong. Deletion may not processed. Please try again later.');
       })
       .done(function(replytext) {
         window.location.assign('/contracts');
@@ -211,6 +211,32 @@
       })
       .done(function(replytext) {
         window.location.assign(`/contracts/${contractID}`);
+      });
+    });
+  });
+
+  // This is the code for marking a contract complete.
+
+  $('.markCompleteSolo').click(() => {
+    let contractObj = {};
+    let contract = event.target.id.slice(1);
+    $(`#${event.target.id}`).addClass('hide');
+    $(`#complete${contract}`).removeClass('hide');
+    $(`#confirmComplete${contract}`).click(() => {
+      event.preventDefault();
+      console.log('Completed by value - ', $(`#completedBy${contract}`).val());
+      contractObj.assassin_id = $(`#completedBy${contract}`).val();
+      $.ajax({
+        url : `/contracts/complete/${contract}`,
+        method : 'PATCH',
+        dataType : 'json',
+        data : contractObj
+      })
+      .fail(function(err) {
+        window.alert('Something went wrong. Update not processed. Please try again later.');
+      })
+      .done(function(replytext) {
+        window.location.reload();
       });
     });
   });

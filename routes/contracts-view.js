@@ -325,6 +325,57 @@ router.post('/add/', (req, res) => {
   });
 });
 
+// For a PATCH request to /contracts/complete followed by an ID number. This will take the contract and mark it as complete, mark the contract's target as dead, and add the assassin that completed the contract (taken from the request body) to the contract's "completed_by" column.
+
+router.patch('/complete/:id', (req, res) => {
+  let id = filterInt(req.params.id);
+  let completedObj = req.body;
+  console.log('This is who completed the contract - ', completedObj.assassin_id);
+  let idRange = [];
+  if (!isNaN(id)) {
+    knex.select('contract_set_id').from('contracts')
+    .then((idArr) => {
+      idRange = idArr.map((soloID) => {
+        return soloID.contract_set_id;
+      });
+      if (idRange.includes(id)) {
+        return knex('contracts').select('target_id').where('contract_set_id', id);
+      } else {
+        return res.sendStatus(404);
+      }
+    })
+    .then((target_id) => {
+      if (idRange.includes(id)) {
+        console.log(`The contract's target ID - `, target_id[0].target_id)
+        return knex('targets').where('id', target_id[0].target_id).update({
+          alive : false
+        });
+      } else { // Returning blank if id isn't in range (we already sent the 404).
+        return;
+      }
+    })
+    .then(() => {
+      if (idRange.includes(id)) {
+        return knex('contracts').where('contract_set_id', id).update({
+          completed : true,
+          completed_by : completedObj.assassin_id
+         });
+      } else { // Returning blank if id isn't in range (we already sent the 404).
+        return;
+      }
+    })
+    .then(() => {
+      res.send(completedObj)
+    })
+    .catch((err) => {
+      console.error('Error completing contract info - ', err);
+      res.sendStatus(500);
+    })
+  } else { // Returning 404 if they didn't put a number as the ID.
+    res.sendStatus(404);
+  }
+});
+
 
 // For PATCH requests to /contracts/edit/ followed by an ID number - This will udpate the contract infromation based on the information.
 router.patch('/edit/:id', (req, res) => {
@@ -337,9 +388,6 @@ router.patch('/edit/:id', (req, res) => {
         idRange = idArr.map((soloID) => {
           return soloID.contract_set_id;
         });
-        console.log('The ID range is - ', idRange);
-      })
-      .then(() => {
         if (idRange.includes(id)) {
           if (contractObj.budget) {
             return knex('contracts').where('contract_set_id', id).update({
