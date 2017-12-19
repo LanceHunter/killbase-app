@@ -1,7 +1,7 @@
 'use strict';
 
 //Setting up knex
-const env = 'development';
+const env = 'production';
 const config = require('../knexfile.js')[env];
 const knex = require('knex')(config);
 
