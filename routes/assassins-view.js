@@ -87,7 +87,7 @@ router.get('/search', (req, res) => {
         let indexSpot;
         let checkedIDArr = [];
         let finalResults = [];
-        results.forEach((assassin, index) => {
+        results.forEach((assassin) => {
           if (checkedIDArr.includes(assassin.id)) {
             finalResults.forEach((previousAssassin) => {
               if (previousAssassin.id === assassin.id) {
@@ -139,7 +139,7 @@ router.get('/search', (req, res) => {
       let indexSpot;
       let checkedIDArr = [];
       let finalResults = [];
-      results.forEach((assassin, index) => {
+      results.forEach((assassin) => {
         if (checkedIDArr.includes(assassin.id)) {
           finalResults.forEach((previousAssassin) => {
             if (previousAssassin.id === assassin.id) {
