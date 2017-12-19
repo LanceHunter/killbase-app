@@ -79,14 +79,32 @@ router.get('/search', (req, res) => {
         }
       })
       // Then we search for a join table of the assassin + weapon for all the assassins whose names are in the array.
-      knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').whereIn('assassins.name', matchingNames)
-      .then((result) => {
+      knex.select('*').from('assassins').fullOuterJoin('weapons', 'assassins.id', 'weapons.assassin_id').fullOuterJoin('code_names', 'assassins.id', 'code_names.assassin_id').whereIn('assassins.name', matchingNames)
+      .then((results) => {
+        results.forEach((result) => {
+          result.codeNameArr = [result.code_name];
+        });
+        let indexSpot;
+        let checkedIDArr = [];
+        let finalResults = [];
+        results.forEach((assassin, index) => {
+          if (checkedIDArr.includes(assassin.id)) {
+            finalResults.forEach((previousAssassin) => {
+              if (previousAssassin.id === assassin.id) {
+                previousAssassin.codeNameArr.push(assassin.code_name);
+              }
+            });
+          } else {
+            checkedIDArr.push(assassin.id);
+            finalResults.push(assassin);
+          }
+        });
           res.render('../views/assassins.ejs', {
             onMain : false,
             onAssassins : true,
             onContracts : false,
             totalAssassins : false,
-            assassins : result
+            assassins : finalResults
           });
         }); // Finally, this is sent to the assassins.ejs page for rendering.
     })
@@ -115,6 +133,24 @@ router.get('/search', (req, res) => {
       return knex.select('*').from('code_names').fullOuterJoin('assassins', 'code_names.assassin_id', 'assassins.id').fullOuterJoin('weapons', 'code_names.assassin_id', 'weapons.assassin_id').whereIn('code_names.code_name', matchingNames);
     })
     .then((results) => {
+      results.forEach((result) => {
+        result.codeNameArr = [result.code_name];
+      });
+      let indexSpot;
+      let checkedIDArr = [];
+      let finalResults = [];
+      results.forEach((assassin, index) => {
+        if (checkedIDArr.includes(assassin.id)) {
+          finalResults.forEach((previousAssassin) => {
+            if (previousAssassin.id === assassin.id) {
+              previousAssassin.codeNameArr.push(assassin.code_name);
+            }
+          });
+        } else {
+          checkedIDArr.push(assassin.id);
+          finalResults.push(assassin);
+        }
+      });
       // Finally all that gets rendered on the multiple assassins page.
       res.render('../views/assassins.ejs', {
         onMain : false,
