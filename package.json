@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start" : "node index.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -25,20 +25,20 @@
   },
   "homepage": "https://github.com/LanceHunter/killbase-app#readme",
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "csv-parse": "^2.0.0",
-    "ejs": "^2.5.7",
-    "eslint": "^4.12.1",
-    "express": "^4.16.2",
-    "knex": "^0.14.2",
-    "morgan": "^1.9.0",
-    "nodemon": "^1.13.3",
+    "body-parser": "^1.18.3",
+    "csv-parse": "^2.5.0",
+    "ejs": "^2.6.1",
+    "eslint": "^4.19.1",
+    "express": "^4.16.4",
+    "knex": "^0.14.6",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.9",
     "path": "^0.12.7",
-    "pg": "^7.4.0",
-    "ps": "0.0.2"
+    "pg": "^7.7.1",
+    "ps": "^1.0.0"
   },
   "devDependencies": {
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0"
+    "eslint-plugin-import": "^2.14.0"
   }
 }
