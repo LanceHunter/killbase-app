@@ -26,7 +26,7 @@
   "homepage": "https://github.com/LanceHunter/killbase-app#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "csv-parse": "^2.5.0",
+    "csv-parse": "^4.4.6",
     "ejs": "^2.6.1",
     "eslint": "^4.19.1",
     "express": "^4.16.4",
